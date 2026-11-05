@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="de">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LLM Trading Arena – Virtual Research</title>
+<style>
+:root {color-scheme:dark;--bg:#0b0f19;--card:#151c2b;--edge:#273348;--muted:#9caac0;--text:#f3f5fa;--gold:#f3bf62;--cyan:#64cedd;--violet:#bb9cfb;--green:#67dba8;--red:#fe8d9a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 85% -14%,#233d58 0,transparent 45%),var(--bg);color:var(--text);font:14px/1.55 system-ui,-apple-system,Segoe UI,Arial,sans-serif}
+.shell{max-width:1360px;margin:auto;padding:28px 25px 55px}.nav{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid var(--edge);padding-bottom:21px;margin-bottom:26px}.brand{display:flex;align-items:center;gap:12px}.mark{width:43px;height:43px;border-radius:12px;background:linear-gradient(135deg,#416ab0,#b69bf7);display:grid;place-items:center;font-size:23px;font-weight:800}.brand h1{font-size:20px;line-height:1.2;margin:0;letter-spacing:-.4px}.brand small{color:var(--muted);letter-spacing:.06em}.status{color:var(--muted);font-size:12px;border:1px solid var(--edge);border-radius:100px;padding:7px 12px}
+h2{font-size:18px;letter-spacing:-.3px;margin:26px 0 14px}h3{font-size:14px;margin:0 0 12px}.sub{color:var(--muted);font-size:13px}.hero{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:20px}.hero h2{font-size:27px;margin:0 0 5px}.tag{font-size:11px;letter-spacing:.07em;border:1px solid #546888;background:#1d3242;color:#9fd9eb;border-radius:20px;padding:5px 10px;font-weight:700}.tag.demo{background:#3a2b1e;color:var(--gold);border-color:#6b5332}
+.warning{border:1px solid #574631;background:#272015;border-radius:12px;padding:11px 14px;color:#f1d09b;margin:16px 0}.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.card,.panel{background:linear-gradient(145deg,#182133,#121925);border:1px solid var(--edge);border-radius:15px;padding:19px}.card{min-height:176px}.card header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:11px}.card header strong{font-size:15px}.icon{border-radius:8px;padding:4px 8px;font-size:12px;font-weight:700;background:#243047;color:#cedaec}.card .amount{font-size:26px;letter-spacing:-.8px;font-weight:720}.card .pct{font-size:17px;font-weight:700;margin-top:4px}.green{color:var(--green)}.red{color:var(--red)}.muted{color:var(--muted)}.paused{opacity:.65}.split{display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);gap:15px;margin-top:15px}.panel{min-width:0}.legend{display:flex;flex-wrap:wrap;gap:13px;margin-bottom:14px;color:var(--muted);font-size:12px}.dot{display:inline-block;height:9px;width:9px;border-radius:3px;margin-right:6px}#chart{min-height:260px;overflow:hidden}svg{width:100%;height:auto;display:block}.markets{display:grid;gap:16px}.market{padding:2px 0 14px;border-bottom:1px solid var(--edge)}.market:last-child{border-bottom:none}.market strong{display:block;font-size:15px}.market .price{font-size:24px;letter-spacing:-.5px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:15px}.tableWrap{overflow-x:auto;max-height:390px;overflow-y:auto}table{width:100%;border-collapse:collapse;white-space:nowrap}th,td{text-align:left;padding:11px 9px;border-bottom:1px solid #293247;font-size:12px}th{color:#b5c2d4;font-weight:600;background:#172033;position:sticky;top:0}td{color:#e5eaf2}td.reason{white-space:normal;min-width:220px;max-width:420px}.pill{border:1px solid #546888;border-radius:7px;padding:2px 6px;font-size:11px}.foot{color:var(--muted);line-height:1.7;margin-top:24px;font-size:12px}.foot a{color:var(--cyan)}.button{color:#d1e3fa;background:#253852;border-radius:9px;border:1px solid #39547b;padding:9px 13px;text-decoration:none;font-size:12px}.headrow{display:flex;align-items:center;justify-content:space-between;gap:10px}.headrow h2{margin:25px 0 10px}
+@media(max-width:1040px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.split,.grid2{grid-template-columns:1fr}}@media(max-width:570px){.shell{padding:18px 13px 40px}.cards{gap:9px}.card{padding:13px;min-height:155px}.card .amount{font-size:22px}.card header strong{font-size:12px}.hero h2{font-size:23px}.nav{align-items:flex-start}.status{max-width:145px}}
+</style></head>
+<body><div class="shell">
+ <nav class="nav"><div class="brand"><div class="mark">↗</div><div><h1>LLM Trading Arena</h1><small>LIVE PAPER TRADING LAB · v0.3.1</small></div></div><div class="status" id="updated">Lade Daten …</div></nav>
+ <section class="hero"><div><h2>Sieben Strategien. Zwei Märkte.</h2><div class="sub">Virtuelle Ausführungen · unabhängige Entscheidungssysteme · vollständig protokolliert</div></div><span class="tag" id="mode">Daten laden …</span></section>
+ <div class="warning" id="warning">Keine echten Orders. Dieses Forschungsprojekt verwendet ausschließlich virtuelle Depots.</div>
+ <section class="cards" id="cards"></section>
+ <div class="sub" style="margin:12px 0 16px">Vergleich: Trendfolge (1h/4h) · Breakout (15m + 48h-Hoch) · Mean-Reversion (15m) · Ensemble (Marktregime) · GPT · Claude · Buy &amp; Hold. Handelssignale auf abgeschlossenen Kerzen, Kursüberwachung ca. alle 5 Sekunden. Standard-Takergebühr 0,25 % je Seite.</div>
+ <section class="split"><div class="panel"><h3>Depotentwicklung · virtuell in EUR</h3><div class="legend" id="legend"></div><div id="chart"><span class="sub">Noch keine Daten.</span></div></div><div class="panel"><h3>Bitvavo EUR-Spotmärkte</h3><div class="markets" id="markets"></div><div class="sub" style="margin-top:12px">Preisbewertung: Midpoint · Ausführung: Bid/Ask + Slippage</div></div></section>
+ <section class="grid2"><div class="panel"><div class="headrow"><h2>Letzte virtuelle Trades</h2><a class="button" href="/api/trades.csv" download="arena-trades.csv">CSV exportieren</a></div><div class="tableWrap" id="trades"></div></div><div class="panel"><h2>LLM- und Strategieentscheidungen</h2><div class="tableWrap" id="decisions"></div></div></section>
+ <section class="panel" style="margin-top:15px"><h3>Betriebsprotokoll</h3><div id="logs" class="sub">Keine Einträge.</div></section>
+ <div class="foot">Forschungssoftware, keine Anlageberatung. 15m/1h/4h-Kerzen für Handelssignale, 5-Sekunden-Kursüberwachung; LLM-Intervall standardmäßig 30 Minuten und bei Bewegungssignal. Nur abgeschlossene Kerzen. Positionslimit pro Asset 45 %, gesamte Marktexposition maximal 90 %, keine Shorts, kein Hebel. GPT/Claude werden nur mit konfiguriertem eigenen API-Schlüssel ausgeführt. Buy-and-Hold dient als passive Benchmark; andere Strategien stoppen nach 10 % Depot-Drawdown und liquidieren virtuell. Die simulierte Ausführung beweist keine reale Handelbarkeit. Dashboard nur lokal auf 127.0.0.1 erreichbar.</div>
+</div>
+<script>
+const COLORS={gpt:'#64cedd',claude:'#bb9cfb',trend:'#f3bf62',breakout:'#f49f7d',meanrev:'#e6a3d4',ensemble:'#88aeff',buyhold:'#67dba8'};
+const NAMES={gpt:'GPT',claude:'Claude',trend:'Trendfolge',breakout:'Breakout',meanrev:'Mean Reversion',ensemble:'Ensemble',buyhold:'Buy & Hold'};
+const money=n=>new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR',maximumFractionDigits:2}).format(n);
+const num=(n,d=2)=>Number(n).toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d});
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function renderGraph(data, active){
+ const lines=active.map(a=>({name:a,pts:data.filter(v=>v.agent===a).map(v=>({ts:new Date(v.ts).getTime(),y:v.value})).filter(v=>Number.isFinite(v.ts))})).filter(v=>v.pts.length>0);
+ if(!lines.length){document.querySelector('#chart').innerHTML='<span class="sub">Noch keine Depoteinträge – Live-Prozess starten oder Demo verwenden.</span>';return;}
+ let all=lines.flatMap(l=>l.pts), xmin=Math.min(...all.map(p=>p.ts)),xmax=Math.max(...all.map(p=>p.ts));if(xmin===xmax)xmax+=1;
+ let ymin=Math.min(10000,...all.map(p=>p.y)),ymax=Math.max(10000,...all.map(p=>p.y));let pad=(ymax-ymin)*.16||400;ymin-=pad;ymax+=pad;
+ const W=840,H=300,L=65,R=14,T=14,B=32,X=x=>L+(x-xmin)/(xmax-xmin)*(W-L-R),Y=y=>T+(ymax-y)/(ymax-ymin)*(H-T-B);
+ let svg=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Depotentwicklung">`;
+ for(let k=0;k<5;k++){let y=T+k*(H-T-B)/4,v=ymax-k*(ymax-ymin)/4;svg+=`<path d="M${L},${y}H${W-R}" stroke="#2c3950" stroke-width="1"/><text x="${L-10}" y="${y+4}" fill="#9caac0" text-anchor="end" font-size="11">${Math.round(v).toLocaleString('de-DE')}</text>`;}
+ svg+=`<path d="M${X(xmin)},${Y(10000)}H${X(xmax)}" stroke="#9caac0" stroke-dasharray="3 6" opacity=".5"/>`;
+ for(let line of lines){let pts=line.pts;if(pts.length>700)pts=pts.filter((v,i)=>i%Math.ceil(line.pts.length/700)===0||i===line.pts.length-1);svg+=`<polyline fill="none" stroke="${COLORS[line.name]}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" points="${pts.map(p=>`${X(p.ts).toFixed(2)},${Y(p.y).toFixed(2)}`).join(' ')}"/>`;}
+ let datefmt=d=>new Date(d).toLocaleDateString('de-DE',{day:'2-digit',month:'short'});
+ svg+=`<text x="${L}" y="${H-6}" fill="#9caac0" font-size="11">${datefmt(xmin)}</text><text x="${W-R}" y="${H-6}" fill="#9caac0" text-anchor="end" font-size="11">${datefmt(xmax)}</text></svg>`;
+ document.querySelector('#chart').innerHTML=svg;
+}
+function sparkline(ticks){
+ if(!Array.isArray(ticks)||ticks.length<2)return '<div class="sub">Warte auf Kursverlauf …</div>';
+ const vals=ticks.map(t=>Number(t.mid)).filter(Number.isFinite);
+ if(vals.length<2)return '';
+ const lo=Math.min(...vals),hi=Math.max(...vals),span=hi-lo||1;
+ const pts=vals.map((v,i)=>`${(i/(vals.length-1)*300).toFixed(1)},${(50-(v-lo)/span*46).toFixed(1)}`).join(' ');
+ return `<svg style="margin-top:8px" viewBox="0 0 300 55" aria-label="Letzte Live-Preise"><polyline fill="none" stroke="#64cedd" stroke-width="1.7" points="${pts}"/></svg>`;
+}
+function renderTable(rows,headers,fn){if(!rows.length)return '<div class="sub">Noch keine Einträge.</div>';return '<table><thead><tr>'+headers.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>'+rows.map(x=>'<tr>'+fn(x).map(v=>`<td>${v}</td>`).join('')+'</tr>').join('')+'</tbody></table>';}
+function dt(iso){return new Date(iso).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
+async function refresh(){
+ try{
+ const response=await fetch('/api/state',{cache:'no-store'});if(!response.ok)throw Error('HTTP '+response.status);const d=await response.json();
+ document.querySelector('#mode').textContent=d.mode;document.querySelector('#mode').className='tag'+(d.demo?' demo':'');
+ document.querySelector('#updated').textContent='Abfrage: '+new Date().toLocaleTimeString('de-DE');
+ document.querySelector('#warning').textContent=d.demo?'DEMO: Alle Kurse sind ausdrücklich SYNTHETISCH. GPT und Claude handeln NICHT; nur die Referenzsysteme werden gezeigt. Keine Performance-Aussage möglich.':'LIVE-SANDBOX: Echte öffentliche Bitvavo-Kurse, aber ausschließlich virtuelle Orders. Keine reale Ausführungsbestätigung und keine Renditegarantie.';
+ document.querySelector('#cards').innerHTML=d.portfolios.map(p=>{
+ let disabled=!p.available;let stopped=p.halted;let c=p.return_pct>=0?'green':'red';
+ return `<article class="card ${disabled?'paused':''}"><header><strong>${NAMES[p.agent]}</strong><span class="icon">${stopped?'RISIKO-STOPP':disabled?'KEIN API-KEY':p.agent==='buyhold'?'BENCHMARK':(p.agent==='gpt'||p.agent==='claude')?'KEY GESETZT':'SIMULIERT'}</span></header><div class="amount">${money(p.equity)}</div><div class="pct ${c}">${p.return_pct>=0?'+':''}${num(p.return_pct)} %</div><div class="sub" style="margin-top:9px">${disabled?'Kein LLM-API-Schlüssel – keine LLM-Signale':`Cash ${money(p.cash)} · BTC ${num(p.btc,5)} · ETH ${num(p.eth,4)}`}</div></article>`;}).join('');
+ document.querySelector('#legend').innerHTML=d.portfolios.filter(p=>p.available).map(p=>`<span><span class="dot" style="background:${COLORS[p.agent]}"></span>${NAMES[p.agent]}</span>`).join('');
+ renderGraph(d.equity,d.portfolios.filter(p=>p.available).map(p=>p.agent));
+ document.querySelector('#markets').innerHTML=Object.values(d.markets).map(m=>{const age=(Date.now()-Date.parse(m.ts))/1000;const fresh=Number.isFinite(age)&&age<20;return `<div class="market"><strong>${esc(m.symbol)} · <span class="${fresh?'green':'red'}">${fresh?'LIVE':'KURS VERALTET'}</span></strong><div class="price">${money((m.bid+m.ask)/2)}</div><div class="sub">Bid ${money(m.bid)} · Ask ${money(m.ask)}</div><div class="sub">${m.bar_ts ? 'Letzte abgeschlossene 1m-Kerze '+dt(new Date(m.bar_ts*1000).toISOString()) : '1m-Kerzen werden geladen'} · ${esc(m.source)}</div>${sparkline(d.price_history?.[m.symbol]||[])}</div>`}).join('')||'<span class="sub">Noch keine Live-Kurse geladen.</span>';
+ document.querySelector('#trades').innerHTML=renderTable(d.trades,['Zeit','Agent','Markt','Typ','Volumen','Gebühr'],r=>[esc(dt(r.ts)),esc(NAMES[r.agent]||r.agent),esc(r.symbol),`<span class="pill">${esc(r.side)}</span>`,money(r.notional),money(r.fee)]);
+ document.querySelector('#decisions').innerHTML=renderTable(d.decisions,['Zeit','Agent','Markt','Signal','Grund'],r=>[esc(dt(r.ts)),esc(NAMES[r.agent]||r.agent),esc(r.symbol),`<span class="pill">${esc(r.action)}</span>`,`<span class="reason">${esc(r.reason)}</span>`]);
+ document.querySelector('#logs').innerHTML=d.logs.length?d.logs.slice(0,8).map(l=>`<div style="padding:5px 0;border-bottom:1px solid #273348">${esc(dt(l.ts))} · ${esc(l.level)} · ${esc(l.message)}</div>`).join(''):'Keine Einträge.';
+ }catch(e){document.querySelector('#updated').textContent='Datenfehler';document.querySelector('#logs').textContent=String(e);}
+}
+refresh();setInterval(refresh,5000);
+</script></body></html>

@@ -1,0 +1,18 @@
+[Unit]
+Description=Atomic SQLite backup and retention for LLM Trading Arena
+
+[Service]
+Type=oneshot
+User=__PI_USER__
+Group=__PI_USER__
+WorkingDirectory=/home/__PI_USER__/llm-trading-arena/apps/arena
+ExecStart=/usr/bin/python3 /home/__PI_USER__/llm-trading-arena/apps/arena/scripts/backup_db.py /home/__PI_USER__/.local/share/llm-trading-arena/live_v03_bitvavo.sqlite3 --directory /home/__PI_USER__/.local/share/llm-trading-arena/backups --keep 14
+ExecStartPost=/usr/bin/python3 /home/__PI_USER__/llm-trading-arena/apps/arena/scripts/prune_logs.py /home/__PI_USER__/.local/share/llm-trading-arena/live_v03_bitvavo.sqlite3 --days 30
+TimeoutStartSec=300
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/__PI_USER__/.local/share/llm-trading-arena
+LogNamespace=llm-trading-arena
