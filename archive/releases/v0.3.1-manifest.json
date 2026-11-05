@@ -1,0 +1,96 @@
+{
+  "archive": "LLM_Trading_Arena_v0.3.1_Codex_RaspberryPi5.zip",
+  "sha256": "131a5b324437321cac3ffaea9ffeb0443f959f447f1a842e94f1b713d0c9c7dd",
+  "files": [
+    {
+      "path": "START_LIVE_WINDOWS.bat",
+      "sha256": "1c71e138b641bc83acf9ee59eff441f9ebe7af01a20c385b23c5068eff15f01e",
+      "bytes": 51
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "d602d1f4b37439ae13d9ab7135f49a5e1f308c1fc4a9dd68966515ebdf21b6af",
+      "bytes": 2115
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "e299ade7c2028ee54b2392b0f0e92c4cdb5d61c476b5e4e5ef1abc1ad55b09a5",
+      "bytes": 204
+    },
+    {
+      "path": "main.py",
+      "sha256": "d1e93c82be1ed1ab91a090592c7a88063b357807a1b2ef1592df718f8e71dfc7",
+      "bytes": 9680
+    },
+    {
+      "path": "tests/test_v031.py",
+      "sha256": "58cfb72bbd5f2a78a8d6c25c3a7c9196173ba57a1b1d38da806c7cecd69499d4",
+      "bytes": 4904
+    },
+    {
+      "path": "tests/test_v03.py",
+      "sha256": "39eace07ea60f3497648a85bfbe6a996bcc2c343f8e83678d7ffdcaacad2670f",
+      "bytes": 6235
+    },
+    {
+      "path": "arena.py",
+      "sha256": "69083734a7dadd1ba69f1144551438074012daadd6362ebd5d28bf6b67f3e054",
+      "bytes": 15642
+    },
+    {
+      "path": "README.md",
+      "sha256": "1f6bbd4f38dea4658c31a40c028454f49c70fddfc418b0aa2fcc9bb5f16b111f",
+      "bytes": 9586
+    },
+    {
+      "path": "README_PI_CODEX.md",
+      "sha256": "2ece28de54bf3ab3d1282c836f32b390371bc356856c545fc733245c92406d79",
+      "bytes": 6469
+    },
+    {
+      "path": "START_DEMO_WINDOWS.bat",
+      "sha256": "ea87ea3621d0b92807857aebd8cc130c27d5809f6153acbc74350af809b2569a",
+      "bytes": 58
+    },
+    {
+      "path": "scripts/backup_db.py",
+      "sha256": "ddb60e2a14c0ee6b9fb9d7096344cfda6860f2bd6e64ce6c7f24f96e4da8ad38",
+      "bytes": 903
+    },
+    {
+      "path": "scripts/install_pi_service.sh",
+      "sha256": "879529a9c843d9240aba6a29d2ff99a93318ef64fb3525167a5b13a88f6927e6",
+      "bytes": 1122
+    },
+    {
+      "path": "bitvavo.py",
+      "sha256": "1fddee7992dd2b72e7d92f2e63508e717d12b69f1e4feaa27ac7ac43f0c4d950",
+      "bytes": 3210
+    },
+    {
+      "path": ".env.example",
+      "sha256": "2cb2f682788c18cc8fcd1b8845502342073e491cc2b3e7feb3c4f249303b1e7a",
+      "bytes": 558
+    },
+    {
+      "path": "deploy/llm-trading-arena.service",
+      "sha256": "4093df7e6c31141302680993fa2afa86b7b7c3ce522f98a354759fa2fa252494",
+      "bytes": 680
+    },
+    {
+      "path": "static/index.html",
+      "sha256": "cef55e33fcde985ae672da47a5f0a58f7608675ba3b69946ab0346db4932ce54",
+      "bytes": 13856
+    },
+    {
+      "path": "engine03.py",
+      "sha256": "f465e056be40d32832c5765b3721bfd04e7ec6162ceafda6d6dd941b9a755ff7",
+      "bytes": 17449
+    },
+    {
+      "path": "strategies.py",
+      "sha256": "d662778e8c2780e6cab2059d86962f38cfc9deaa0ec8cedc2eb2ee32f2c28fa8",
+      "bytes": 10778
+    }
+  ]
+}

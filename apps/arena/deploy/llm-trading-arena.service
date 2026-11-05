@@ -1,0 +1,25 @@
+[Unit]
+Description=LLM Trading Arena Bitvavo research-only paper trading
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=__PI_USER__
+Group=__PI_USER__
+WorkingDirectory=/home/__PI_USER__/llm-trading-arena/apps/arena
+Environment=PYTHONUNBUFFERED=1
+Environment=LLM_TRADING_ARENA_DATA_DIR=/home/__PI_USER__/.local/share/llm-trading-arena
+ExecStart=/usr/bin/python3 /home/__PI_USER__/llm-trading-arena/apps/arena/main.py start
+Restart=on-failure
+RestartSec=15
+TimeoutStopSec=20
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/__PI_USER__/.local/share/llm-trading-arena
+
+[Install]
+WantedBy=multi-user.target

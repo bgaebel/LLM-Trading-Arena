@@ -1,0 +1,32 @@
+# Credentials / runtime (NEVER commit)
+.env
+.env.*
+!.env.example
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+data/
+backups/
+*.log
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.vscode/
+.DS_Store
+
+# Local research outputs and tooling
+.ipynb_checkpoints/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+research/datasets/raw/*
+!research/datasets/raw/README.md
+research/datasets/processed/*
+!research/datasets/processed/README.md
+experiments/runs/*
+!experiments/runs/README.md
