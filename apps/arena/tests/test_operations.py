@@ -63,6 +63,24 @@ class OperationsTests(unittest.TestCase):
         self.assertEqual(self.rows(self.con),before)
         self.assertEqual(inspect_db(self.path,mode='live')['counts']['trades'],2)
 
+    def test_concurrent_benchmark_workers_do_not_duplicate_trades(self):
+        core.record_live_quotes(self.con,self.quotes)
+        barrier=threading.Barrier(2)
+        failures=[]
+        def worker():
+            con=core.open_db(str(self.path))
+            try:
+                barrier.wait(timeout=5)
+                engine.initialize_buyhold(con,self.quotes)
+            except Exception as exc:failures.append(exc)
+            finally:con.close()
+        threads=[threading.Thread(target=worker) for _ in range(2)]
+        for thread in threads:thread.start()
+        for thread in threads:thread.join(10)
+        self.assertFalse(any(thread.is_alive() for thread in threads))
+        self.assertEqual(failures,[])
+        self.assertEqual(self.con.execute('SELECT COUNT(*) FROM trades').fetchone()[0],2)
+
     def test_failed_execution_rolls_back_decision_trade_and_portfolio(self):
         before=self.rows(self.con)
         with patch('engine03.core.mark_and_risk',side_effect=sqlite3.OperationalError('disk full')):
