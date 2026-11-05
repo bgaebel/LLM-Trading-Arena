@@ -66,7 +66,7 @@ def inspect_db(path, *, full=True, mode=None):
         for table, expected in [('decisions', ['agent','symbol','bar_ts']), ('equity', ['ts','agent'])]:
             unique_columns=[]
             for index in con.execute(f'PRAGMA index_list({table})'):
-                if index['unique']:
+                if index['unique'] and not index['partial']:
                     escaped=index['name'].replace(chr(34),chr(34)*2)
                     unique_columns.append([r['name'] for r in con.execute(f'PRAGMA index_info("{escaped}")')])
             if expected not in unique_columns: raise ValueError('Missing idempotency constraint')
@@ -171,19 +171,29 @@ def health_report(db_path, health=None, *, demo=False):
                 age = time.time() - datetime.fromisoformat(row['ts']).timestamp()
                 markets[row['symbol']] = {'age_seconds': round(age, 1),
                     'status': 'ok' if 0 <= age <= 20 and row['source'] == 'BITVAVO-LIVE' else 'stale'}
-            from arena import latest_quotes
+            from arena import latest_quotes, SYMBOLS
             valid_quotes = latest_quotes(con, max_age_seconds=20) is not None
             result['bitvavo'] = {'status': 'disabled' if demo else
                 'ok' if valid_quotes and all(v['status'] == 'ok' for v in markets.values()) else 'degraded',
                 'markets': markets}
             for agent, key in [('gpt', 'OPENAI_API_KEY'), ('claude', 'ANTHROPIC_API_KEY')]:
                 row = con.execute('SELECT ts,status FROM llm_calls WHERE agent=? ORDER BY id DESC LIMIT 1', (agent,)).fetchone()
-                status = 'disabled' if demo or not os.getenv(key) else 'untested' if row is None else (
-                    'ok' if row['status'] in ('OK', 'STALE_QUOTE') else
-                    'pending' if row['status'] == 'PENDING' and 0 <= time.time()-datetime.fromisoformat(row['ts']).timestamp() <= 120
-                    else 'degraded')
-                result['providers'][agent] = {'status': status, 'last_attempt': row['ts'] if row else None,
-                                               'last_result': row['status'] if row else None}
+                observations = {}
+                for symbol in SYMBOLS:
+                    last = con.execute('SELECT ts,status FROM llm_calls WHERE agent=? AND symbol=? ORDER BY id DESC LIMIT 1',
+                                       (agent, symbol)).fetchone()
+                    status = 'disabled' if demo or not os.getenv(key) else 'untested' if last is None else (
+                        'ok' if last['status'] in ('OK', 'STALE_QUOTE') else
+                        'pending' if last['status'] == 'PENDING' and 0 <= time.time()-datetime.fromisoformat(last['ts']).timestamp() <= 120
+                        else 'degraded')
+                    observations[symbol] = {'status': status, 'last_attempt': last['ts'] if last else None,
+                                            'last_result': last['status'] if last else None}
+                statuses = {item['status'] for item in observations.values()}
+                aggregate = next(status for status in ('degraded', 'untested', 'pending', 'ok', 'disabled')
+                                 if status in statuses)
+                result['providers'][agent] = {'status': aggregate, 'last_attempt': row['ts'] if row else None,
+                                               'last_result': row['status'] if row else None,
+                                               'markets': observations}
         finally:
             con.close()
     except (OSError, sqlite3.Error, ValueError, TypeError) as exc:

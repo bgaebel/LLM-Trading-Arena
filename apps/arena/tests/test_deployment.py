@@ -1,5 +1,7 @@
 """Deployment failure injection: systemd/git are mocked, SQLite backup is real."""
 import importlib.util
+import io
+import tarfile
 import os
 import sqlite3
 import subprocess
@@ -84,6 +86,23 @@ class DeploymentTests(unittest.TestCase):
         self.assertNotIn('OPENAI_API_KEY',env)
         self.assertNotIn('ANTHROPIC_API_KEY',env)
         self.assertNotIn('LLM_TRADING_ARENA_DATA_DIR',env)
+
+    def test_release_archive_rejects_secret_variants_and_sqlite_sidecars(self):
+        for name in ('.env.production','data/live.sqlite3-wal','data/live.db-shm',
+                     'data/live.sqlite-journal','data/live.sqlite3.manifest.json'):
+            with self.subTest(name=name):
+                payload=io.BytesIO()
+                with tarfile.open(fileobj=payload,mode='w') as archive:
+                    entry=tarfile.TarInfo(name)
+                    entry.size=4
+                    archive.addfile(entry,io.BytesIO(b'test'))
+                result=subprocess.CompletedProcess([],0,stdout=payload.getvalue())
+                with tempfile.TemporaryDirectory(dir=self.root) as folder, \
+                     patch.object(deploy.subprocess,'run',return_value=result), \
+                     patch.object(deploy,'command') as command:
+                    with self.assertRaisesRegex(ValueError,'runtime data or secrets'):
+                        deploy.prepare_candidate('candidate',Path(folder))
+                    command.assert_not_called()
 
     def test_preflight_refuses_unsynchronized_clock_before_database_access(self):
         with patch.object(preflight,'load_dotenv'), \

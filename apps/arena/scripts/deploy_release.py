@@ -5,6 +5,7 @@ import argparse
 import io
 import json
 import os
+import re
 import subprocess
 import sys
 import tarfile
@@ -50,7 +51,10 @@ def prepare_candidate(commit, folder):
                 raise ValueError('Unsafe release archive')
             if entry.isdir(): target.mkdir(parents=True, exist_ok=True)
             elif entry.isfile():
-                if target.name == '.env' or target.suffix in ('.sqlite', '.sqlite3', '.db'):
+                name = target.name.lower()
+                secret = name == '.env' or name.startswith('.env.') and name != '.env.example'
+                runtime = re.search(r'\.(?:sqlite3?|db)(?:$|-(?:wal|shm|journal)$|\.manifest\.json$)', name)
+                if secret or runtime:
                     raise ValueError('Release contains runtime data or secrets')
                 target.parent.mkdir(parents=True, exist_ok=True)
                 with tar.extractfile(entry) as f: target.write_bytes(f.read())

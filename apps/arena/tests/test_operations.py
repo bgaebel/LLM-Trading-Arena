@@ -149,6 +149,93 @@ class OperationsTests(unittest.TestCase):
         with self.assertRaises(FileExistsError):backup.restore_backup(snapshot,blocked)
         self.assertFalse(blocked.exists())
 
+    def test_restore_binds_verified_bytes_even_if_source_changes_after_hash(self):
+        snapshot=self.root/'snapshot.sqlite3'
+        backup.backup_database(self.path,snapshot)
+        target=self.root/'restored.sqlite3'
+        original_digest=backup.digest
+        changed=[]
+        def hash_then_change_source(path):
+            result=original_digest(path)
+            if not changed:
+                con=sqlite3.connect(snapshot)
+                try:
+                    with con:con.execute("UPDATE portfolios SET cash=cash+123 WHERE agent='gpt'")
+                finally:con.close()
+                changed.append(True)
+            return result
+        with patch('backup.digest',side_effect=hash_then_change_source):
+            backup.restore_backup(snapshot,target)
+        self.assertTrue(changed)
+        backup.verify_backup(target)
+        restored=read_db(target)
+        try:self.assertEqual(core.balance(restored,'gpt')['cash'],core.START_CASH)
+        finally:restored.close()
+
+    def test_restore_inventory_mismatch_is_rejected_before_publication(self):
+        snapshot=self.root/'snapshot.sqlite3'
+        backup.backup_database(self.path,snapshot)
+        target=self.root/'restored.sqlite3'
+        original_inspect=backup.inspect_db
+        def different_inventory(path,**kwargs):
+            result=original_inspect(path,**kwargs)
+            if Path(path)!=snapshot:result['counts']['trades']+=1
+            return result
+        with patch('backup.inspect_db',side_effect=different_inventory):
+            with self.assertRaises(ValueError):backup.restore_backup(snapshot,target)
+        self.assertFalse(target.exists())
+        self.assertFalse(Path(str(target)+'.manifest.json').exists())
+        self.assertFalse(list(self.root.glob('.arena-*.tmp')))
+
+    def test_manifest_write_failure_does_not_publish_backup_or_restore(self):
+        snapshot=self.root/'snapshot.sqlite3'
+        backup.backup_database(self.path,snapshot)
+        for operation in ('backup','restore'):
+            with self.subTest(operation=operation):
+                target=self.root/(operation+'.sqlite3')
+                with patch('backup.json.dump',side_effect=OSError('simulated full disk')):
+                    with self.assertRaises(OSError):
+                        if operation=='backup':backup.backup_database(self.path,target)
+                        else:backup.restore_backup(snapshot,target)
+                self.assertFalse(target.exists())
+                self.assertFalse(Path(str(target)+'.manifest.json').exists())
+                self.assertFalse(list(self.root.glob('.arena-*')))
+
+    def test_backup_rejects_orphan_sidecars_before_publication(self):
+        for suffix in ('-wal','-shm','-journal','.manifest.json'):
+            with self.subTest(suffix=suffix):
+                target=self.root/('target'+str(len(suffix))+suffix.replace('.','_')+'.sqlite3')
+                orphan=Path(str(target)+suffix)
+                orphan.write_bytes(b'preserve existing artifact')
+                with self.assertRaises(FileExistsError):backup.backup_database(self.path,target)
+                self.assertFalse(target.exists())
+                self.assertEqual(orphan.read_bytes(),b'preserve existing artifact')
+
+    def test_partial_unique_index_cannot_pass_idempotency_check(self):
+        sql=self.con.execute("SELECT sql FROM sqlite_master WHERE name='decisions'").fetchone()[0]
+        with self.con:
+            self.con.execute('DROP TABLE decisions')
+            self.con.execute(sql.replace('UNIQUE(agent,symbol,bar_ts)','UNIQUE(id)'))
+            self.con.execute("CREATE UNIQUE INDEX partial_decisions ON decisions(agent,symbol,bar_ts) WHERE status='OK'")
+        with self.assertRaisesRegex(ValueError,'idempotency'):inspect_db(self.path)
+        self.assertIsNotNone(self.con.execute("SELECT 1 FROM sqlite_master WHERE name='partial_decisions'").fetchone())
+
+    def test_llm_market_error_is_not_hidden_by_later_other_market_success(self):
+        self.seed()
+        health=Health()
+        for name in ('quotes','strategy','llm'):health.tick(name)
+        with self.con:
+            for symbol,status in [('BTCEUR','ERROR'),('ETHEUR','OK')]:
+                self.con.execute('INSERT INTO llm_calls(ts,agent,symbol,ref_mid,status) VALUES (?,?,?,?,?)',
+                                 (core.utcnow(),'gpt',symbol,100,status))
+        with patch.dict(os.environ,{'OPENAI_API_KEY':'test','ANTHROPIC_API_KEY':''}):
+            report=health_report(self.path,health)
+        self.assertEqual(report['providers']['gpt']['status'],'degraded')
+        self.assertFalse(report['ready'])
+        self.assertTrue(report['live'])
+        self.assertEqual(report['providers']['gpt']['markets']['BTCEUR']['last_result'],'ERROR')
+        self.assertEqual(report['providers']['gpt']['markets']['ETHEUR']['last_result'],'OK')
+
     def test_backup_checksum_detects_tampering(self):
         dest=self.root/'snapshot.sqlite3'
         backup.backup_database(self.path,dest)
