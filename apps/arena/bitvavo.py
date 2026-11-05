@@ -2,6 +2,7 @@
 from __future__ import annotations
 import math
 import time
+import threading
 from urllib.parse import quote as url_quote, urlencode
 
 import arena as core
@@ -9,11 +10,30 @@ from strategies import Candle
 
 API = "https://api.bitvavo.com/v2"
 TIMEFRAMES = {1:"1m", 15:"15m", 60:"1h", 240:"4h"}
+_retry_lock = threading.Lock()
+_retry_not_before = 0.
+
+
+def _public_json(url):
+    """Shared REST cooldown across quote and candle workers after HTTP 429."""
+    global _retry_not_before
+    with _retry_lock:
+        remaining = _retry_not_before - time.monotonic()
+    if remaining > 0:
+        raise core.HTTPFailure(429, remaining)
+    try:
+        return core.http_json(url)
+    except core.HTTPFailure as exc:
+        if exc.status == 429:
+            delay = min(3600., max(1., exc.retry_after or 900.))
+            with _retry_lock:
+                _retry_not_before = max(_retry_not_before, time.monotonic() + delay)
+        raise
 
 def quotes():
     # One public request for both pairs, bounded to well under the public rate limit.
     result = {}
-    data = core.http_json(API + '/ticker/book')
+    data = _public_json(API + '/ticker/book')
     if not isinstance(data,list):
         raise ValueError('Bitvavo ticker/book: unerwartetes Datenformat')
     for item in data:
@@ -22,6 +42,7 @@ def quotes():
             if item.get('market') == market:
                 q=core.Quote(float(item['bid']),float(item['ask']))
                 q.validate()
+                if symbol in result and result[symbol]!=q:raise ValueError('Conflicting duplicate quote')
                 result[symbol]=q
     if set(result)!=set(core.SYMBOLS):
         raise ValueError('Bitvavo ticker/book: BTC-EUR oder ETH-EUR fehlt')
@@ -55,14 +76,17 @@ def closed_candles(symbol: str, interval: int, *,now_epoch: int|None = None):
     now_epoch=int(time.time()) if now_epoch is None else int(now_epoch)
     market=core.PAIRS[symbol]
     url=API+'/'+url_quote(market,safe='')+'/candles?'+urlencode({'interval':TIMEFRAMES[interval],'limit':500})
-    rows=core.http_json(url)
+    rows=_public_json(url)
     if not isinstance(rows,list):raise ValueError('Bitvavo-Kerzen: Datenformat falsch')
     out=[]
     seen={}
     for row in rows:
         if not isinstance(row,(list,tuple)) or len(row)<6:
             raise ValueError('Bitvavo-Kerzen: unvollständige OHLCV-Zeile')
-        ts=int(row[0])//1000
+        raw_ts=int(row[0])
+        if isinstance(row[0],bool) or isinstance(row[0],float) and row[0]!=raw_ts or raw_ts%1000:
+            raise ValueError('Invalid candle millisecond timestamp')
+        ts=raw_ts//1000
         # Do not leak forming candles into strategies. Also ignore future data.
         if ts + interval*60 > now_epoch:continue
         item=Candle(ts,*map(float,row[1:6]))

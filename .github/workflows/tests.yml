@@ -23,6 +23,16 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Compile Python
         run: python -m compileall -q apps/arena
+      - name: Validate dashboard JavaScript
+        shell: python
+        run: |
+          import subprocess, tempfile
+          from pathlib import Path
+          source = Path('apps/arena/static/index.html').read_text(encoding='utf-8')
+          with tempfile.TemporaryDirectory() as folder:
+              script = Path(folder) / 'dashboard.js'
+              script.write_text(source.split('<script>')[1].split('</script>')[0], encoding='utf-8')
+              subprocess.run(['node', '--check', str(script)], check=True)
       - name: Validate shell and systemd templates (not a Pi deployment)
         if: runner.os == 'Linux'
         shell: bash

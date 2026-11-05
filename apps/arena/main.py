@@ -40,6 +40,10 @@ def make_server(db_path: str, demo: bool, port: int, health=None):
         def do_GET(self):
             path = urlsplit(self.path).path
             status_code = 200
+            from reporting import filters, history, select_rows
+            try:selected=filters(parse_qs(urlsplit(self.path).query))
+            except (ValueError,OverflowError):
+                self.send_error(400,'Invalid report parameters');return
             if path in ('/', '/index.html'):
                 content=(ROOT/'static'/'index.html').read_bytes()
                 ct='text/html; charset=utf-8'
@@ -49,15 +53,18 @@ def make_server(db_path: str, demo: bool, port: int, health=None):
                 status_code=200 if good else 503
                 content=json.dumps(data).encode()
                 ct='application/json; charset=utf-8'
-            elif path in ('/api/performance', '/api/export.json'):
+            elif path in ('/api/performance', '/api/export.json', '/api/history'):
                 from research import performance
                 query=parse_qs(urlsplit(self.path).query)
                 con=read_db(db_path)
                 try:
                     con.execute('BEGIN')
-                    data=performance(con,query.get('start',[None])[0],query.get('end',[None])[0])
-                    agent=query.get('agent',[None])[0]
-                    if agent: data['portfolios']=[p for p in data['portfolios'] if p['agent']==agent]
+                    if path=='/api/history':data=history(con,selected)
+                    else:
+                        data=performance(con,selected['start'],selected['end'])
+                        if selected['agent']:data['portfolios']=[p for p in data['portfolios'] if p['agent']==selected['agent']]
+                        data['portfolio_metrics_scope']='whole portfolio'
+                        if path=='/api/export.json':data['history']=history(con,selected)
                     data['demo']=demo
                 except ValueError:
                     self.send_error(400,'Invalid report parameters');return
@@ -73,12 +80,12 @@ def make_server(db_path: str, demo: bool, port: int, health=None):
             elif path=='/api/trades.csv':
                 con=read_db(db_path)
                 try:
-                    rows=con.execute('SELECT ts,agent,symbol,side,qty,fill,notional,fee FROM trades ORDER BY id').fetchall()
+                    rows=select_rows(con,'trades',selected)[::-1]
                 finally: con.close()
                 out=io.StringIO()
                 writer=csv.writer(out)
                 writer.writerow(['timestamp_utc','agent','symbol','side','qty','fill_eur','notional_eur','fee_eur'])
-                writer.writerows(tuple(r) for r in rows)
+                writer.writerows(tuple(r[key] for key in ('ts','agent','symbol','side','qty','fill','notional','fee')) for r in rows)
                 content=out.getvalue().encode('utf-8-sig')
                 ct='text/csv; charset=utf-8'
             else:

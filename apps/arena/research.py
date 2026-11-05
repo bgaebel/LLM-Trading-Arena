@@ -15,6 +15,9 @@ from strategies import Candle, MultiSnapshot, INTERVALS
 
 def performance(con, start=None, end=None):
     """Common equity timestamps; returns include unrealized positions, exclude API costs."""
+    from reporting import utc_bound
+    start,end=utc_bound(start),utc_bound(end)
+    if start and end and start>end:raise ValueError('Start after end')
     where=[]; params=[]
     for bound,operator in ((start, '>='),(end,'<=')):
         if bound:
@@ -31,7 +34,7 @@ def performance(con, start=None, end=None):
     for agent in core.AGENTS:
         points=[grouped[agent][ts] for ts in times]
         values=[float(p['value']) for p in points]
-        if any(not math.isfinite(v) or v<=0 for v in values):raise ValueError('Invalid equity series')
+        if values[0]<=0 or any(not math.isfinite(v) or v<0 for v in values):raise ValueError('Invalid equity series')
         peak=values[0];drawdown=0.
         for value in values:
             peak=max(peak,value);drawdown=max(drawdown,1-value/peak)
@@ -40,12 +43,18 @@ def performance(con, start=None, end=None):
             'net_return_pct':100*(values[-1]/values[0]-1),'max_drawdown_pct':100*drawdown,
             'fees_eur':sum(r['fee'] for r in trades),'trade_count':len(trades),
             'turnover':sum(abs(r['notional']) for r in trades)/values[0],
-            'mean_exposure_pct':100*sum((p['value']-p['cash'])/p['value'] for p in points)/len(points),
+            'mean_exposure_pct':100*sum((p['value']-p['cash'])/p['value'] if p['value'] else 0 for p in points)/len(points),
             'open_btc':points[-1]['btc'],'open_eth':points[-1]['eth']})
     benchmark=next(p['net_return_pct'] for p in output if p['agent']=='buyhold')
-    for p in output:p['excess_buyhold_pct']=p['net_return_pct']-benchmark
+    from reporting import accounting, api_costs
+    for p in output:
+        p['excess_buyhold_pct']=p['net_return_pct']-benchmark
+        p['accounting']=accounting(con,p['agent'],first,last)
+        p['api_costs']=api_costs(con,p['agent'],first,last)
+        api_cost=p['api_costs']['complete_estimated_cost_eur']
+        p['return_after_estimated_api_cost_pct']=p['net_return_pct']-100*api_cost/p['start_equity'] if api_cost is not None else None
     return {'status':'ok','start':first,'end':last,'observations':len(times),'portfolios':output,
-            'limitations':['API costs not included','Exposure is observation-weighted',
+            'limitations':['Trading return excludes API costs; separate estimated net return only if all costs are known','Exposure is observation-weighted',
                             'Trades at start are already reflected in starting equity',
                             'Drawdown measured only at shared stored observations']}
 

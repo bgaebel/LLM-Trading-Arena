@@ -38,3 +38,5 @@ experiments/runs/*
 *.sqlite.manifest.json
 
 llm-audit/
+
+arena-bundle-*.zip

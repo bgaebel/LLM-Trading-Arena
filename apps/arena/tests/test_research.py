@@ -69,5 +69,42 @@ class ResearchTests(unittest.TestCase):
         self.assertEqual([(f['test_start'],f['test_end']) for f in folds],[(4,5),(6,7),(8,9),(10,11)])
         self.assertTrue(all(f['train_end']<f['test_start'] for f in folds))
 
+    def test_fifo_realized_profit_allocates_buy_and_sell_fees(self):
+        from reporting import accounting
+        with self.con:
+            for ts,side,qty,notional,fee in [('2026-01-01T00:00:00+00:00','BUY',1,100,1),
+                                              ('2026-01-02T00:00:00+00:00','SELL',.5,60,.6)]:
+                self.con.execute('INSERT INTO trades(ts,agent,symbol,side,qty,fill,notional,fee,slip_rate) VALUES(?,?,?,?,?,?,?,?,0)',
+                                 (ts,'gpt','BTCEUR',side,qty,notional/qty,notional,fee))
+        result=accounting(self.con,'gpt','2026-01-01T00:00:00+00:00','2026-01-03T00:00:00+00:00')
+        self.assertAlmostEqual(result['realized_pnl_eur'],8.9)
+        self.assertAlmostEqual(result['open_lots']['BTCEUR']['cost_basis_eur'],50.5)
+        self.assertEqual(result['open_lots']['BTCEUR']['quantity'],.5)
+
+    def test_missing_opening_trade_does_not_fabricate_realized_profit(self):
+        from reporting import accounting
+        with self.con:
+            self.con.execute("INSERT INTO trades(ts,agent,symbol,side,qty,fill,notional,fee,slip_rate) VALUES('2026-01-02T00:00:00+00:00','gpt','BTCEUR','SELL',1,100,100,1,0)")
+        result=accounting(self.con,'gpt','2026-01-01T00:00:00+00:00','2026-01-03T00:00:00+00:00')
+        self.assertIsNone(result['realized_pnl_eur'])
+        self.assertTrue(result['opening_inventory_unknown'])
+
+    def test_missing_api_receipt_marks_cost_as_unknown(self):
+        from reporting import api_costs
+        with self.con:
+            self.con.execute("INSERT INTO llm_calls(ts,agent,symbol,ref_mid,status) VALUES('2026-01-02T00:00:00+00:00','gpt','BTCEUR',100,'ERROR')")
+        result=api_costs(self.con,'gpt','2026-01-01T00:00:00+00:00','2026-01-03T00:00:00+00:00')
+        self.assertEqual(result['unknown_cost_attempts'],1)
+        self.assertIsNone(result['complete_estimated_cost_eur'])
+
+    def test_full_loss_is_a_valid_drawdown(self):
+        with self.con:
+            for ts,value in [('2026-01-01T00:00:00+00:00',10000),('2026-01-02T00:00:00+00:00',0)]:
+                for agent in core.AGENTS:
+                    self.con.execute('INSERT INTO equity(ts,agent,value,cash,btc,eth) VALUES(?,?,?,?,0,0)',(ts,agent,value,value))
+        result=research.performance(self.con)['portfolios'][0]
+        self.assertEqual(result['net_return_pct'],-100)
+        self.assertEqual(result['max_drawdown_pct'],100)
+
 
 if __name__=='__main__':unittest.main()

@@ -202,6 +202,9 @@ def llm_cycle(con:sqlite3.Connection,snaps:dict, *,llm_fn=core.llm_signal,
         max_calls=max(0,int(os.getenv('MAX_DAILY_LLM_CALLS','60')))
         for symbol,snap in snaps.items():
             if stop_event is not None and stop_event.is_set(): return total
+            qs_live=core.latest_quotes(con,max_age_seconds=20)
+            if qs_live is None:return total
+            if time.time()-snap.fetched_at>120:continue
             # Expired snapshots and stalled market feed must NOT initiate LLM requests.
             if now_epoch - snap.fetched_at > 120 or snap.fetched_at-now_epoch>10:continue
             if not llm_due(con,agent,symbol,snap.quote.mid,now_epoch):continue
@@ -210,6 +213,8 @@ def llm_cycle(con:sqlite3.Connection,snaps:dict, *,llm_fn=core.llm_signal,
             if used>=max_calls:continue
             p=core.balance(con,agent)
             if p['halted']:continue
+            reserved=False
+            sent=False
             try:
                 analysis=indicators(snap,cost_roundtrip(snap))
                 context=feature_payload(snap,analysis,core.current_weight(p,symbol,qs_live),
@@ -220,12 +225,25 @@ def llm_cycle(con:sqlite3.Connection,snaps:dict, *,llm_fn=core.llm_signal,
                                        (datetime.fromtimestamp(now_epoch,timezone.utc).isoformat(timespec='seconds'),agent,
                                         symbol,snap.quote.mid,'PENDING'))
                     attempt=cursor.lastrowid
+                from budget import reserve, settle
                 from provenance import reserve_snapshot, take_usage
+                reserve(con,attempt,agent,now_epoch)
+                reserved=True
                 audit=reserve_snapshot(con,attempt,agent,context,snap)
                 take_usage()  # Do not attribute usage from an earlier attempt.
                 request_started=time.monotonic()
-                sig,model=llm_fn(agent,context)
-                audit['token_usage']=take_usage()
+                returned=False
+                try:
+                    sent=True
+                    sig,model=llm_fn(agent,context)
+                    returned=True
+                finally:
+                    usage=take_usage()
+                    receipt=settle(con,attempt,usage,'response_received' if returned else 'request_failed',
+                                   time.monotonic()-request_started)
+                audit['token_usage']=usage
+                audit['api_cost_eur']=receipt['estimated_cost_eur']
+                audit['budget_charge_eur']=receipt['charge_eur']
                 audit['latency_seconds']=time.monotonic()-request_started
                 context=dict(context,_audit=audit)
                 if stop_event is not None and stop_event.is_set():
@@ -245,8 +263,10 @@ def llm_cycle(con:sqlite3.Connection,snaps:dict, *,llm_fn=core.llm_signal,
             except Exception as exc:
                 # Sanitized errors only. Never log keys or raw HTTP authentication headers.
                 message=type(exc).__name__
+                if reserved and not sent:
+                    settle(con,attempt,None,'not_sent',0,not_sent=True)
                 if 'attempt' in locals():
-                    with con:con.execute('UPDATE llm_calls SET status=?,message=? WHERE id=?',('ERROR',message,attempt))
+                    with con:con.execute('UPDATE llm_calls SET status=?,message=? WHERE id=?',('BUDGET_BLOCKED' if message=='BudgetBlocked' else 'NOT_SENT' if not sent else 'ERROR',message,attempt))
                 core.log(con,f'{agent}/{symbol}: {message}','ERROR',agent)
             finally:
                 # Important when first symbol errors before attempt allocation.
