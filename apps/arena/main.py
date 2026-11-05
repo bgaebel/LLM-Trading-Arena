@@ -11,7 +11,7 @@ import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, parse_qs
 
 from arena import SYMBOLS, record_live_quotes, load_dotenv, open_db, log, latest_quotes
 from bitvavo import quotes as bitvavo_quotes
@@ -48,6 +48,21 @@ def make_server(db_path: str, demo: bool, port: int, health=None):
                 good=data['ready'] if path=='/health/ready' else data['live']
                 status_code=200 if good else 503
                 content=json.dumps(data).encode()
+                ct='application/json; charset=utf-8'
+            elif path in ('/api/performance', '/api/export.json'):
+                from research import performance
+                query=parse_qs(urlsplit(self.path).query)
+                con=read_db(db_path)
+                try:
+                    con.execute('BEGIN')
+                    data=performance(con,query.get('start',[None])[0],query.get('end',[None])[0])
+                    agent=query.get('agent',[None])[0]
+                    if agent: data['portfolios']=[p for p in data['portfolios'] if p['agent']==agent]
+                    data['demo']=demo
+                except ValueError:
+                    self.send_error(400,'Invalid report parameters');return
+                finally: con.close()
+                content=json.dumps(data,ensure_ascii=False,allow_nan=False).encode()
                 ct='application/json; charset=utf-8'
             elif path=='/api/state':
                 con=read_db(db_path)

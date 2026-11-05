@@ -220,7 +220,14 @@ def llm_cycle(con:sqlite3.Connection,snaps:dict, *,llm_fn=core.llm_signal,
                                        (datetime.fromtimestamp(now_epoch,timezone.utc).isoformat(timespec='seconds'),agent,
                                         symbol,snap.quote.mid,'PENDING'))
                     attempt=cursor.lastrowid
+                from provenance import reserve_snapshot, take_usage
+                audit=reserve_snapshot(con,attempt,agent,context,snap)
+                take_usage()  # Do not attribute usage from an earlier attempt.
+                request_started=time.monotonic()
                 sig,model=llm_fn(agent,context)
+                audit['token_usage']=take_usage()
+                audit['latency_seconds']=time.monotonic()-request_started
+                context=dict(context,_audit=audit)
                 if stop_event is not None and stop_event.is_set():
                     with con: con.execute('UPDATE llm_calls SET status=? WHERE id=?',('CANCELLED',attempt))
                     return total

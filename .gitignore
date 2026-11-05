@@ -36,3 +36,5 @@ experiments/runs/*
 *.sqlite3.manifest.json
 *.db.manifest.json
 *.sqlite.manifest.json
+
+llm-audit/

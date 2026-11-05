@@ -28,3 +28,7 @@ Die echte Historie liegt laut Nutzer auf einem anderen PC. Auf dessen Wunsch hie
 Anleitungen: [Betrieb](../docs/operations/README.md), [Migration](../docs/operations/MIGRATION.md), [Updates](../docs/operations/UPDATES.md). P2–P6 nicht umgesetzt. Strategien, Parameter, Kosten und Prompts unverändert; automatischer Vertragsvergleich gegen Original-ZIP ergänzt. Entwicklung erfolgt im Branch `codex/p0-p1-pi-operations` für einen Pull Request, ohne Merge.
 
 P0/P1-Nachprüfung: Restore prüft die unveränderliche Zielkopie vor Veröffentlichung; Health berücksichtigt LLM-Fehler je Markt. Backup-Zielartefakte, partielle Idempotenz-Indizes und zusätzliche Secret-/SQLite-Dateivarianten werden abgelehnt. [Review-Bericht](../docs/operations/P0_P1_REVIEW.md).
+
+## Forschungsausbau in Arbeit
+
+Branch `codex/research-phases`: erste implementierte Teile von P2–P5 sowie P6-Versuchsplaene. 64 Offline-Tests lokal, davon 1 POSIX-Skip unter Windows. Vollstaendiger Umfang und offene Kriterien: [Forschungsausbau](../docs/operations/RESEARCH_PHASES.md). P2–P6 sind noch nicht vollstaendig abgenommen.

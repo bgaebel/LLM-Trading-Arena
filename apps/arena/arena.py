@@ -74,7 +74,11 @@ def http_json(url: str, *, payload: dict | None = None, headers: dict | None = N
     })
     try:
         with urllib.request.urlopen(req, timeout=35 if raw else 12) as resp:
-            return json.loads(resp.read(2_000_000).decode('utf-8'))
+            result=json.loads(resp.read(2_000_000).decode('utf-8'))
+            if raw:
+                from provenance import capture_usage
+                capture_usage(result)
+            return result
     except urllib.error.HTTPError as exc:
         raise RuntimeError(f'HTTP {exc.code}') from None
 

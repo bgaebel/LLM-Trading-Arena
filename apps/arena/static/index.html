@@ -13,6 +13,8 @@ h2{font-size:18px;letter-spacing:-.3px;margin:26px 0 14px}h3{font-size:14px;marg
  <nav class="nav"><div class="brand"><div class="mark">↗</div><div><h1>LLM Trading Arena</h1><small>LIVE PAPER TRADING LAB · v0.3.1</small></div></div><div class="status" id="updated">Lade Daten …</div></nav>
  <section class="hero"><div><h2>Sieben Strategien. Zwei Märkte.</h2><div class="sub">Virtuelle Ausführungen · unabhängige Entscheidungssysteme · vollständig protokolliert</div></div><span class="tag" id="mode">Daten laden …</span></section>
  <div class="warning" id="warning">Keine echten Orders. Dieses Forschungsprojekt verwendet ausschließlich virtuelle Depots.</div>
+ <section class="panel" style="margin-bottom:15px"><h3>Betriebszustand</h3><div id="health" class="sub">Status wird abgefragt …</div></section>
+ <section class="panel" style="margin-bottom:15px"><h3>Vergleich im gemeinsamen Zeitraum</h3><a class="button" href="/api/export.json" download="performance.json">JSON exportieren</a><div id="performance" class="tableWrap"></div></section>
  <section class="cards" id="cards"></section>
  <div class="sub" style="margin:12px 0 16px">Vergleich: Trendfolge (1h/4h) · Breakout (15m + 48h-Hoch) · Mean-Reversion (15m) · Ensemble (Marktregime) · GPT · Claude · Buy &amp; Hold. Handelssignale auf abgeschlossenen Kerzen, Kursüberwachung ca. alle 5 Sekunden. Standard-Takergebühr 0,25 % je Seite.</div>
  <section class="split"><div class="panel"><h3>Depotentwicklung · virtuell in EUR</h3><div class="legend" id="legend"></div><div id="chart"><span class="sub">Noch keine Daten.</span></div></div><div class="panel"><h3>Bitvavo EUR-Spotmärkte</h3><div class="markets" id="markets"></div><div class="sub" style="margin-top:12px">Preisbewertung: Midpoint · Ausführung: Bid/Ask + Slippage</div></div></section>
@@ -67,5 +69,13 @@ async function refresh(){
  document.querySelector('#logs').innerHTML=d.logs.length?d.logs.slice(0,8).map(l=>`<div style="padding:5px 0;border-bottom:1px solid #273348">${esc(dt(l.ts))} · ${esc(l.level)} · ${esc(l.message)}</div>`).join(''):'Keine Einträge.';
  }catch(e){document.querySelector('#updated').textContent='Datenfehler';document.querySelector('#logs').textContent=String(e);}
 }
-refresh();setInterval(refresh,5000);
+async function refreshResearch(){
+ try{
+  const h=await (await fetch('/api/health',{cache:'no-store'})).json();
+  document.querySelector('#health').textContent=`Betrieb: ${h.status} · Feed: ${h.bitvavo?.status||'unbekannt'} · letzte Entscheidung: ${h.last_decision||'keine'} · GPT: ${h.providers?.gpt?.status||'unbekannt'} · Claude: ${h.providers?.claude?.status||'unbekannt'}`;
+  const p=await (await fetch('/api/performance',{cache:'no-store'})).json();
+  document.querySelector('#performance').innerHTML=p.status==='ok'?`<p class="sub">${esc(p.start)} bis ${esc(p.end)} · API-Kosten separat / nicht enthalten</p>`+renderTable(p.portfolios,['Agent','Netto','Max. Drawdown','Gebühren','Trades','ggü. Buy & Hold'],r=>[esc(NAMES[r.agent]||r.agent),num(r.net_return_pct)+' %',num(r.max_drawdown_pct)+' %',money(r.fees_eur),esc(r.trade_count),num(r.excess_buyhold_pct)+' %-Punkte']):'<p class="sub">Noch keine gemeinsame Historie für alle Depots.</p>';
+ }catch(e){document.querySelector('#health').textContent='Betriebsstatus nicht abrufbar';}
+}
+refresh();refreshResearch();setInterval(refresh,5000);setInterval(refreshResearch,15000);
 </script></body></html>

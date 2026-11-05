@@ -58,6 +58,7 @@ def closed_candles(symbol: str, interval: int, *,now_epoch: int|None = None):
     rows=core.http_json(url)
     if not isinstance(rows,list):raise ValueError('Bitvavo-Kerzen: Datenformat falsch')
     out=[]
+    seen={}
     for row in rows:
         if not isinstance(row,(list,tuple)) or len(row)<6:
             raise ValueError('Bitvavo-Kerzen: unvollständige OHLCV-Zeile')
@@ -69,5 +70,10 @@ def closed_candles(symbol: str, interval: int, *,now_epoch: int|None = None):
             raise ValueError('Bitvavo-Kerzen: ungültige Preise')
         if not math.isfinite(item.volume) or item.volume < 0:
             raise ValueError('Bitvavo-Kerzen: ungültiges Volumen')
+        if ts % (interval*60):raise ValueError('Misaligned candle timestamp')
+        if item.low>min(item.open,item.close) or item.high<max(item.open,item.close,item.low):
+            raise ValueError('Invalid OHLC range')
+        if ts in seen and seen[ts]!=item:raise ValueError('Conflicting duplicate candle')
+        seen[ts]=item
         out.append(item)
     return tuple(sorted({r.ts:r for r in out}.values(),key=lambda r:r.ts))
