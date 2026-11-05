@@ -76,8 +76,7 @@ def http_json(url: str, *, payload: dict | None = None, headers: dict | None = N
         with urllib.request.urlopen(req, timeout=35 if raw else 12) as resp:
             return json.loads(resp.read(2_000_000).decode('utf-8'))
     except urllib.error.HTTPError as exc:
-        msg = exc.read(500).decode('utf-8', errors='replace')
-        raise RuntimeError(f'HTTP {exc.code}: {msg}') from exc
+        raise RuntimeError(f'HTTP {exc.code}') from None
 
 
 @dataclass(frozen=True)
@@ -106,6 +105,7 @@ def record_live_quotes(con: sqlite3.Connection, qs: dict[str, Quote], *, now: st
     for q in qs.values(): q.validate()
     now = now or utcnow()
     with con:
+        con.execute('BEGIN IMMEDIATE')
         for symbol in SYMBOLS:
             q=qs[symbol]
             con.execute('''INSERT INTO market(symbol,ts,bar_ts,bid,ask,last_close,source)

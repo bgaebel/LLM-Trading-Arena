@@ -1,22 +1,36 @@
 #!/usr/bin/env python3
-"""Consistent SQLite backup for paper-trading DB. Stop source service for migration."""
+"""Private atomic SQLite backups; migration requires the old writer to be stopped."""
 import argparse
-import sqlite3
+import sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from backup import backup_database, rotate_backups, verify_backup
+from operations import safe_error
 
-p = argparse.ArgumentParser()
-p.add_argument('source', type=Path)
-p.add_argument('destination', type=Path)
-a = p.parse_args()
-if not a.source.is_file():
-    p.error(f'Source not found: {a.source}')
-if a.destination.exists():
-    p.error(f'Destination already exists (no overwrite): {a.destination}')
-a.destination.parent.mkdir(parents=True, exist_ok=True)
-with sqlite3.connect(f'file:{a.source.resolve()}?mode=ro', uri=True) as source:
-    with sqlite3.connect(str(a.destination)) as target:
-        source.backup(target)
-        check = target.execute('PRAGMA integrity_check').fetchone()[0]
-        if check != 'ok':
-            raise RuntimeError(f'Backup integrity check failed: {check}')
-print(f'Backup created: {a.destination}')
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('source', type=Path)
+    parser.add_argument('destination', type=Path, nargs='?')
+    parser.add_argument('--directory', type=Path)
+    parser.add_argument('--keep', type=int, default=14)
+    parser.add_argument('--verify', action='store_true')
+    args = parser.parse_args()
+    if args.verify:
+        verify_backup(args.source)
+        print('Backup checksum and inventory verified.')
+    elif args.directory and not args.destination:
+        rotate_backups(args.source, args.directory, keep=args.keep)
+        print('Atomic backup and retention completed.')
+    elif args.destination and not args.directory:
+        backup_database(args.source, args.destination)
+        print('Atomic backup and private checksum/inventory manifest created.')
+    else:
+        parser.error('Choose destination, --directory, or --verify')
+
+
+if __name__ == '__main__':
+    try: main()
+    except Exception as exc:
+        print('Backup failed: ' + safe_error(exc), file=sys.stderr)
+        sys.exit(1)

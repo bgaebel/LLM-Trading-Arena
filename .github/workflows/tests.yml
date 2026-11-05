@@ -1,0 +1,35 @@
+name: Offline operations tests
+on:
+  push:
+    branches: [main, 'codex/**']
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.11', '3.13']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Offline regression and operations tests
+        working-directory: apps/arena
+        run: python -m unittest discover -s tests -v
+      - name: Compile Python
+        run: python -m compileall -q apps/arena
+      - name: Validate shell and systemd templates (not a Pi deployment)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          bash -n apps/arena/scripts/install_pi_service.sh
+          mkdir -p /tmp/arena-units
+          for file in apps/arena/deploy/*.service apps/arena/deploy/*.timer; do
+            sed "s/__PI_USER__/runner/g" "$file" > "/tmp/arena-units/$(basename "$file")"
+          done
+          systemd-analyze verify /tmp/arena-units/*.service /tmp/arena-units/*.timer

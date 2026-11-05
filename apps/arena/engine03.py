@@ -64,21 +64,22 @@ def cost_roundtrip(snap:MultiSnapshot):
 def record_decision(con:sqlite3.Connection, agent:str, symbol:str, bar_ts:int, model:str,
                     sig:dict, data:dict, status='OK', now:str|None=None, qs:dict|None=None, *,demo=False):
     """Safe persist + optional virtual trade; fails closed on stale/missing quotes."""
-    when=now or core.utcnow()
-    p=core.balance(con,agent)
-    sig=core.validate_signal(sig) if status=='OK' else sig
-    action=sig['action'];target=sig['target_fraction']
-    if status=='OK':
-        if qs is None or set(qs)!=set(core.SYMBOLS):
-            status='STALE_QUOTE';action='HOLD';target=0
-        else:
-            current=core.current_weight(p,symbol,qs)
-            if action=='HOLD':target=current
-            if action=='BUY' and target<current:target=current
-            if action=='SELL' and target>current:target=current
-            if agent=='buyhold' and p['btc' if symbol=='BTCEUR' else 'eth'] > 0:
-                action='HOLD';target=current
     with con:
+        con.execute("BEGIN IMMEDIATE")
+        when=now or core.utcnow()
+        p=core.balance(con,agent)
+        sig=core.validate_signal(sig) if status=='OK' else sig
+        action=sig['action'];target=sig['target_fraction']
+        if status=='OK':
+            if qs is None or set(qs)!=set(core.SYMBOLS):
+                status='STALE_QUOTE';action='HOLD';target=0
+            else:
+                current=core.current_weight(p,symbol,qs)
+                if action=='HOLD':target=current
+                if action=='BUY' and target<current:target=current
+                if action=='SELL' and target>current:target=current
+                if agent=='buyhold' and p['btc' if symbol=='BTCEUR' else 'eth'] > 0:
+                    action='HOLD';target=current
         cursor=con.execute('''INSERT OR IGNORE INTO decisions
           (ts,agent,symbol,bar_ts,model,action,target,confidence,reason,inputs,status)
           VALUES (?,?,?,?,?,?,?,?,?,?,?)''',
@@ -186,7 +187,7 @@ def llm_due(con,agent,symbol,mid,now_epoch=None):
 
 
 def llm_cycle(con:sqlite3.Connection,snaps:dict, *,llm_fn=core.llm_signal,
-              now_epoch:float|None=None) -> int:
+              now_epoch:float|None=None, stop_event=None) -> int:
     """LLM worker separate from quote and quant workers; max budget counts ATTEMPTS."""
     if not snaps or not set(snaps).issubset(core.SYMBOLS):return 0
     now_epoch=time.time() if now_epoch is None else now_epoch
@@ -200,6 +201,7 @@ def llm_cycle(con:sqlite3.Connection,snaps:dict, *,llm_fn=core.llm_signal,
         if not key:continue
         max_calls=max(0,int(os.getenv('MAX_DAILY_LLM_CALLS','60')))
         for symbol,snap in snaps.items():
+            if stop_event is not None and stop_event.is_set(): return total
             # Expired snapshots and stalled market feed must NOT initiate LLM requests.
             if now_epoch - snap.fetched_at > 120 or snap.fetched_at-now_epoch>10:continue
             if not llm_due(con,agent,symbol,snap.quote.mid,now_epoch):continue
@@ -219,6 +221,9 @@ def llm_cycle(con:sqlite3.Connection,snaps:dict, *,llm_fn=core.llm_signal,
                                         symbol,snap.quote.mid,'PENDING'))
                     attempt=cursor.lastrowid
                 sig,model=llm_fn(agent,context)
+                if stop_event is not None and stop_event.is_set():
+                    with con: con.execute('UPDATE llm_calls SET status=? WHERE id=?',('CANCELLED',attempt))
+                    return total
                 sig=core.validate_signal(sig)
                 qs=core.latest_quotes(con,max_age_seconds=20)
                 status='OK'
@@ -232,7 +237,7 @@ def llm_cycle(con:sqlite3.Connection,snaps:dict, *,llm_fn=core.llm_signal,
                 total+=1
             except Exception as exc:
                 # Sanitized errors only. Never log keys or raw HTTP authentication headers.
-                message=str(exc).replace(key,'[REDACTED]')[:320]
+                message=type(exc).__name__
                 if 'attempt' in locals():
                     with con:con.execute('UPDATE llm_calls SET status=?,message=? WHERE id=?',('ERROR',message,attempt))
                 core.log(con,f'{agent}/{symbol}: {message}','ERROR',agent)

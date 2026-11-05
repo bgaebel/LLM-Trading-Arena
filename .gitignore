@@ -30,3 +30,9 @@ research/datasets/processed/*
 !research/datasets/processed/README.md
 experiments/runs/*
 !experiments/runs/README.md
+
+# Operational locks and private database inventories
+*.writer.lock
+*.sqlite3.manifest.json
+*.db.manifest.json
+*.sqlite.manifest.json
