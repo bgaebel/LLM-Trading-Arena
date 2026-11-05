@@ -21,8 +21,10 @@ Der erste Lauf scheiterte an Sandbox-Zugriffsrechten für temporäre SQLite-Date
 
 Ausgangsstand versioniert als `v0.3.1-import` (`c292821`). Bestandsanalyse und Konfiguration dokumentiert. Implementiert: Start-/Schemaschutz, Single-Writer-Lock, überwachter Shutdown/Worker-Neustart, passive Health-Endpunkte, atomare WAL-Backups mit Retention und verifiziertem Restore, systemd-Units/Timer/Journal-Retention sowie Code-Update/Rollback ohne Zurücksetzen der Historie.
 
-50 Tests: Linux-CI/Python 3.11 und 3.13 vollständig bestanden; Windows lokal/CI 49 bestanden plus 1 bewusst übersprungener POSIX-Test. Gerenderte systemd-Units in Linux-CI akzeptiert. Nachweise: [Validierung](../docs/operations/VALIDATION.md).
+57 Tests: Linux-CI/Python 3.11 und 3.13 vollständig bestanden; Windows lokal/CI 56 bestanden plus 1 bewusst übersprungener POSIX-Test. Gerenderte systemd-Units in Linux-CI akzeptiert. Nachweise: [Validierung](../docs/operations/VALIDATION.md).
 
 Die echte Historie liegt laut Nutzer auf einem anderen PC. Auf dessen Wunsch hier unabhängig entwickelt. Keine echten API-Aufrufe, keine Datenmigration, keine Installation auf dem Pi. Reale Backup-/Historienprüfung und Pi-/ARM64-/Reboot-/Stromverlustabnahme bleiben offen; P0/P1 werden daher nicht als vollständig abgenommen markiert.
 
 Anleitungen: [Betrieb](../docs/operations/README.md), [Migration](../docs/operations/MIGRATION.md), [Updates](../docs/operations/UPDATES.md). P2–P6 nicht umgesetzt. Strategien, Parameter, Kosten und Prompts unverändert; automatischer Vertragsvergleich gegen Original-ZIP ergänzt. Entwicklung erfolgt im Branch `codex/p0-p1-pi-operations` für einen Pull Request, ohne Merge.
+
+P0/P1-Nachprüfung: Restore prüft die unveränderliche Zielkopie vor Veröffentlichung; Health berücksichtigt LLM-Fehler je Markt. Backup-Zielartefakte, partielle Idempotenz-Indizes und zusätzliche Secret-/SQLite-Dateivarianten werden abgelehnt. [Review-Bericht](../docs/operations/P0_P1_REVIEW.md).

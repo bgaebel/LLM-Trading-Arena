@@ -73,7 +73,7 @@ curl -f http://127.0.0.1:8787/health/ready
 | `/health/ready` | 200 nur bei frischem Feed, gesunden Workern und ohne beobachteten Providerfehler/ungeprüften aktivierten Provider; sonst 503 |
 | `/api/health` | JSON mit denselben Details und Liveness-HTTP-Status |
 
-Enthalten: Worker-Heartbeat/letzter Erfolg, Quote-Alter je Markt, SQLite-Lesbarkeit, letzte Entscheidung und letzter beobachteter LLM-Aufruf. LLM `disabled`: kein Schlüssel. `untested`: konfiguriert, noch kein Versuch. `ok`: letzter Versuch erfolgreich, **keine aktive Erreichbarkeitsgarantie**. Keine kostenpflichtigen Health-Probes. Alte `PENDING`-Versuche bleiben auditierbar und werden nach 120 s als degradiert angezeigt. `serve` ist read-only ohne Worker und meldet deshalb keine Service-Liveness.
+Enthalten: Worker-Heartbeat/letzter Erfolg, Quote-Alter je Markt, SQLite-Lesbarkeit, letzte Entscheidung und letzter beobachteter LLM-Aufruf je Anbieter und Markt. Ein Fehler eines Markts bleibt auch nach einem Erfolg des anderen Markts sichtbar. LLM `disabled`: kein Schlüssel. `untested`: konfiguriert, noch kein Versuch. `ok`: letzter Versuch erfolgreich, **keine aktive Erreichbarkeitsgarantie**. Keine kostenpflichtigen Health-Probes. Alte `PENDING`-Versuche bleiben auditierbar und werden nach 120 s als degradiert angezeigt. `serve` ist read-only ohne Worker und meldet deshalb keine Service-Liveness.
 
 Vollständige SQLite-Integrität wird bei Start und Backup geprüft; HTTP-Health führt keine Vollprüfung pro Anfrage durch.
 
@@ -126,3 +126,5 @@ Siehe [UPDATES.md](UPDATES.md). Vor Wechsel Kandidat offline testen, Dienst stop
 - [systemd-Service-Vertrag](https://github.com/systemd/systemd/blob/main/man/systemd.service.xml)
 - [systemd-Timer](https://github.com/systemd/systemd/blob/main/man/systemd.timer.xml)
 - [Journal-Retention](https://github.com/systemd/systemd/blob/main/man/journald.conf.xml)
+
+Nachprüfung der Betriebswege und behobene Befunde: [P0_P1_REVIEW.md](P0_P1_REVIEW.md).

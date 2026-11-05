@@ -46,7 +46,7 @@ python3 scripts/restore_db.py "$HOME/arena-migration/live_v03_bitvavo.sqlite3" "
 python3 scripts/check_db.py "$HOME/.local/share/llm-trading-arena/live_v03_bitvavo.sqlite3"
 ```
 
-Restore prüft Quellchecksumme/-inventar, Live-Modus und Zielinventar, hält den Ziel-Schreiblock und verweigert bestehende DBs/WAL/SHM/Journal-Dateien. **Kein `init-live` vor Erstübernahme.**
+Restore kopiert zuerst in eine private temporäre Datei im Zielverzeichnis. An dieser Datei werden Quellchecksumme, Live-Modus und Inventar geprüft; erst danach wird genau diese Kopie atomar am Ziel veröffentlicht. Spätere Quelländerungen ändern die geprüfte Zielkopie nicht. Der Ziel-Schreiblock wird gehalten; bestehende DBs/WAL/SHM/Journal-/Manifestdateien werden abgelehnt. **Kein `init-live` vor Erstübernahme.**
 
 Service gemäß [README.md](README.md) installieren/starten. Depots, Trade-Anzahl und Zeitstempel vor Start mit privatem Inventar vergleichen. Nach erstem Tick dürfen neue Equity-/Marktdaten entstehen; historische Trades bleiben vollständig. Windows bleibt gestoppt.
 

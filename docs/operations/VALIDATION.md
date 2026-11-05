@@ -7,9 +7,9 @@ Stand: 05.11.2026. Betriebsvertrag `OPS-P1-001`, Strategiebasis v0.3.1.
 | Prüfung | Ergebnis / Umgebung |
 |---|---|
 | Ausgangsstand | Alle 19 ursprünglichen Tests unter Windows/Python 3.13 bestanden |
-| Erweiterte Suite | 50 Tests, lokal Windows/Python 3.13: 49 bestanden, 1 POSIX-Test bewusst übersprungen |
-| Linux-CI | Ubuntu/Python 3.11 und 3.13: alle 50 Tests bestanden, einschließlich echtem SIGTERM |
-| Windows-CI | Python 3.11 und 3.13: 49 bestanden, 1 POSIX-Test übersprungen |
+| Erweiterte Suite | 57 Tests, lokal Windows/Python 3.13: 56 bestanden, 1 POSIX-Test bewusst übersprungen |
+| Linux-CI | Ubuntu/Python 3.11 und 3.13: alle 57 Tests bestanden, einschließlich echtem SIGTERM |
+| Windows-CI | Python 3.11 und 3.13: 56 bestanden, 1 POSIX-Test übersprungen |
 | Shell | `bash -n` bestanden (lokal Git Bash und Linux-CI) |
 | systemd | Gerenderte Service-/Timer-Units in Linux-CI mit `systemd-analyze verify` akzeptiert; keine Pi-Installation |
 | Python | `compileall` bestanden |
@@ -17,7 +17,9 @@ Stand: 05.11.2026. Betriebsvertrag `OPS-P1-001`, Strategiebasis v0.3.1.
 | Archiv | SHA-256 der unveränderten Original-ZIP stimmt mit Importmanifest überein |
 | Veröffentlichung | Versionierte/Kandidaten-Dateien auf `.env`, Datenbanken, private Backup-Manifeste und typische Credential-Muster geprüft; keine Treffer |
 
-Nachweis für Code-Stand `20ca7f8`: [CI-Lauf mit vier erfolgreichen Jobs](https://github.com/bgaebel/LLM-Trading-Arena/actions/runs/41993179806). Der vorherige [CI-Lauf](https://github.com/bgaebel/LLM-Trading-Arena/actions/runs/41992019152) prüfte 48 Tests; danach kamen Konkurrenz- und Trading-Vertragstest hinzu. Folgende Dokumentationscommits verändern den getesteten Anwendungscode nicht.
+Aktueller Anwendungscode `ad59b12`: [CI-Nachprüfung mit vier erfolgreichen Jobs](https://github.com/bgaebel/LLM-Trading-Arena/actions/runs/41995757799), 57 Tests einschließlich sieben zusätzlicher Review-Regressionen. Befunde und Korrekturen: [P0_P1_REVIEW.md](P0_P1_REVIEW.md).
+
+Historische Nachweise: [50 Tests vor Nachprüfung](https://github.com/bgaebel/LLM-Trading-Arena/actions/runs/41993179806), [ursprüngliche Erweiterung auf 48 Tests](https://github.com/bgaebel/LLM-Trading-Arena/actions/runs/41992019152).
 
 ## Abgedeckte Fehlerszenarien
 
@@ -40,6 +42,8 @@ Nachweis für Code-Stand `20ca7f8`: [CI-Lauf mit vier erfolgreichen Jobs](https:
 - Fehlende Live-DB wird nicht angelegt; explizite Neuanlage überschreibt nichts.
 - Update sichert nach Stop vor Codewechsel; Backupfehler verhindert neuen Checkout.
 - Fehlerhafter neuer Dienst stellt alten Code/Units wieder her und erhält zwischenzeitliche DB-Ereignisse. Git/systemd sind in diesen Ablauftests gemockt; Backups verwenden echtes SQLite.
+
+Weitere Regressionen der Nachprüfung: Quelländerung während Restore, Inventurprüfung vor Veröffentlichung, fehlgeschlagene Manifest-Erzeugung, verwaiste SQLite-Seitendateien, partieller Unique-Index, verdeckte marktweise Providerfehler und Secret-/SQLite-Dateivarianten in Release-Archiven.
 
 ## Noch auf dem Raspberry Pi / Quell-PC zu prüfen
 

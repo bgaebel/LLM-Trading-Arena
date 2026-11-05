@@ -9,7 +9,7 @@ python3 scripts/deploy_release.py GEPRUEFTER_COMMIT_SHA_ODER_TAG
 ```
 
 1. Installation/Arbeitsbaum prüfen, sudo authentifizieren, Git-Refs aktualisieren, Ziel zu exaktem Commit auflösen.
-2. Kandidaten per `git archive` temporär entpacken. Symlinks/Pfadtraversal, Laufzeitdateien und inkompatible Betriebsversion ablehnen. Offline-Tests ohne geerbte LLM-Schlüssel ausführen. Die Arena läuft bis dahin weiter.
+2. Kandidaten per `git archive` temporär entpacken. Symlinks/Pfadtraversal, `.env`-Varianten (außer `.env.example`), Datenbanken samt WAL/SHM/Journal/Manifesten und inkompatible Betriebsversion ablehnen. Offline-Tests ohne geerbte LLM-Schlüssel ausführen. Die Arena läuft bis dahin weiter.
 3. Deployment-Lock setzen, Arbeitsbaum erneut prüfen. Backup-Timer/-Job und Dienst stoppen. DB-Schreiblock übernehmen.
 4. Historie prüfen, verifiziertes Backup unter `~/.local/share/llm-trading-arena/pre-update/` anlegen. Kandidat muss bestehende DB read-only akzeptieren.
 5. Exakten Commit auschecken (`detached HEAD`), unveränderte Konfiguration per Hash prüfen, Units installieren/laden. Lock freigeben und Dienst starten.
