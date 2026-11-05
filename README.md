@@ -27,9 +27,11 @@ Offline-Demo: `python main.py demo`, danach `python main.py serve --demo`.
 Die Demo verwendet synthetische Daten. Die Windows-Starter liegen ebenfalls unter `apps/arena/`.
 
 Konfiguration: `apps/arena/.env.example` lokal nach `apps/arena/.env` kopieren.
-Live-Paper-Betrieb ist in der [Anwendungsanleitung](apps/arena/README.md) beschrieben; LLM-Aufrufe können API-Kosten verursachen.
+Live-Start benötigt eine übernommene Historie; nur für neue Experimente zuerst `python main.py init-live`. Live-Paper-Betrieb ist in der [Betriebsanleitung](docs/operations/README.md) beschrieben; LLM-Aufrufe können API-Kosten verursachen.
 Für den Pi siehe [Betrieb und Pfade](docs/operations/README.md).
 
 Tests und Startbefehle immer aus `apps/arena/` ausführen. Die bestehenden flachen Python-Imports bleiben damit kompatibel. Eine spätere Paketaufteilung erfolgt als eigene Änderung mit Regressionstests.
 
 Secrets, Laufzeitdatenbanken, Backups und große Forschungsdaten gehören nicht in Git. Es wird keine Live-Datenbank mitgeliefert. Status und offene Validierungen: [planning/STATUS.md](planning/STATUS.md).
+
+P0/P1-Betrieb: [Migration](docs/operations/MIGRATION.md), [Update/Rollback](docs/operations/UPDATES.md), [Validierung und offene Pi-Abnahme](docs/operations/VALIDATION.md).

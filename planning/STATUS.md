@@ -17,8 +17,12 @@ Stand: 05.11.2026
 
 Der erste Lauf scheiterte an Sandbox-Zugriffsrechten für temporäre SQLite-Dateien. Der freigegebene Lauf außerhalb der Sandbox war erfolgreich. Archivprüfsumme und Gitignore-Regeln geprüft.
 
-## Nächste Schritte
+## P0/P1 – Software umgesetzt, reale Abnahme offen
 
-P0 ist begonnen, nicht abgeschlossen: detailliertes Code-/Konfigurationsinventar, Prüfung und konsistente Sicherung der bestehenden Windows-Live-DB sowie Release-Tag stehen noch aus. Keine Live-DB im gelieferten Paket enthalten.
+Ausgangsstand versioniert als `v0.3.1-import` (`c292821`). Bestandsanalyse und Konfiguration dokumentiert. Implementiert: Start-/Schemaschutz, Single-Writer-Lock, überwachter Shutdown/Worker-Neustart, passive Health-Endpunkte, atomare WAL-Backups mit Retention und verifiziertem Restore, systemd-Units/Timer/Journal-Retention sowie Code-Update/Rollback ohne Zurücksetzen der Historie.
 
-P1 und spätere Phasen sind offen. Raspberry-Pi-/ARM64-Installation, systemd und Live-APIs wurden nicht getestet. Kein Bot gestartet, keine LLM-Aufrufe, kein Deployment und kein Git-Commit/Tag/Push durchgeführt.
+50 Tests: Linux-CI/Python 3.11 und 3.13 vollständig bestanden; Windows lokal/CI 49 bestanden plus 1 bewusst übersprungener POSIX-Test. Gerenderte systemd-Units in Linux-CI akzeptiert. Nachweise: [Validierung](../docs/operations/VALIDATION.md).
+
+Die echte Historie liegt laut Nutzer auf einem anderen PC. Auf dessen Wunsch hier unabhängig entwickelt. Keine echten API-Aufrufe, keine Datenmigration, keine Installation auf dem Pi. Reale Backup-/Historienprüfung und Pi-/ARM64-/Reboot-/Stromverlustabnahme bleiben offen; P0/P1 werden daher nicht als vollständig abgenommen markiert.
+
+Anleitungen: [Betrieb](../docs/operations/README.md), [Migration](../docs/operations/MIGRATION.md), [Updates](../docs/operations/UPDATES.md). P2–P6 nicht umgesetzt. Strategien, Parameter, Kosten und Prompts unverändert; automatischer Vertragsvergleich gegen Original-ZIP ergänzt. Entwicklung erfolgt im Branch `codex/p0-p1-pi-operations` für einen Pull Request, ohne Merge.

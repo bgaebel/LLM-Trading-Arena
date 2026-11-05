@@ -14,3 +14,5 @@ Die Anwendung liegt als zusammenhängende Einheit unter `apps/arena/`:
 | `scripts/`, `deploy/` | Backup und Pi-Service |
 
 Dies ist eine Strukturübersicht, kein abgeschlossener Architektur- oder Sicherheitsaudit. Eine detaillierte Untersuchung der Datenflüsse gehört zu P0.
+
+Detaillierte Bestandsanalyse, Datenflüsse und P0/P1-Befunde: [P0_BASELINE.md](P0_BASELINE.md).

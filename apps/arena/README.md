@@ -1,3 +1,5 @@
+> **P0/P1-Betriebsstand:** Installation, Migration, Health, Backups und Updates sind in [docs/operations](../../docs/operations/README.md) beschrieben. Live-Betrieb benötigt eine übernommene DB oder eine ausdrücklich neue Historie via `python main.py init-live`. Demo zuerst mit `python main.py demo` erzeugen. Die nachfolgende v0.3.1-Fachbeschreibung bleibt als Referenz erhalten.
+
 # LLM Trading Arena v0.3.1 · Bitvavo-EUR-Sandbox
 
 **Was sie ist:** Eine lokale Forschungs-Sandbox mit echten **öffentlichen** Bitvavo-Marktdaten und rein virtuellen Orders. **Was sie nicht ist:** ein echtes Trading-Konto, eine Gewinnmaschine, ein realistischer Limit-Order-Matching-Simulator oder ein freigegebenes Echtgeldsystem.
