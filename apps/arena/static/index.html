@@ -1,43 +1,81 @@
 <!doctype html>
 <html lang="de">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LLM Trading Arena – Virtual Research</title>
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trading Arena · Research Terminal</title>
 <style>
-:root {color-scheme:dark;--bg:#0b0f19;--card:#151c2b;--edge:#273348;--muted:#9caac0;--text:#f3f5fa;--gold:#f3bf62;--cyan:#64cedd;--violet:#bb9cfb;--green:#67dba8;--red:#fe8d9a}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 85% -14%,#233d58 0,transparent 45%),var(--bg);color:var(--text);font:14px/1.55 system-ui,-apple-system,Segoe UI,Arial,sans-serif}
-.shell{max-width:1360px;margin:auto;padding:28px 25px 55px}.nav{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid var(--edge);padding-bottom:21px;margin-bottom:26px}.brand{display:flex;align-items:center;gap:12px}.mark{width:43px;height:43px;border-radius:12px;background:linear-gradient(135deg,#416ab0,#b69bf7);display:grid;place-items:center;font-size:23px;font-weight:800}.brand h1{font-size:20px;line-height:1.2;margin:0;letter-spacing:-.4px}.brand small{color:var(--muted);letter-spacing:.06em}.status{color:var(--muted);font-size:12px;border:1px solid var(--edge);border-radius:100px;padding:7px 12px}
-h2{font-size:18px;letter-spacing:-.3px;margin:26px 0 14px}h3{font-size:14px;margin:0 0 12px}.sub{color:var(--muted);font-size:13px}.hero{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:20px}.hero h2{font-size:27px;margin:0 0 5px}.tag{font-size:11px;letter-spacing:.07em;border:1px solid #546888;background:#1d3242;color:#9fd9eb;border-radius:20px;padding:5px 10px;font-weight:700}.tag.demo{background:#3a2b1e;color:var(--gold);border-color:#6b5332}
-.warning{border:1px solid #574631;background:#272015;border-radius:12px;padding:11px 14px;color:#f1d09b;margin:16px 0}.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.card,.panel{background:linear-gradient(145deg,#182133,#121925);border:1px solid var(--edge);border-radius:15px;padding:19px}.card{min-height:176px}.card header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:11px}.card header strong{font-size:15px}.icon{border-radius:8px;padding:4px 8px;font-size:12px;font-weight:700;background:#243047;color:#cedaec}.card .amount{font-size:26px;letter-spacing:-.8px;font-weight:720}.card .pct{font-size:17px;font-weight:700;margin-top:4px}.green{color:var(--green)}.red{color:var(--red)}.muted{color:var(--muted)}.paused{opacity:.65}.split{display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);gap:15px;margin-top:15px}.panel{min-width:0}.legend{display:flex;flex-wrap:wrap;gap:13px;margin-bottom:14px;color:var(--muted);font-size:12px}.dot{display:inline-block;height:9px;width:9px;border-radius:3px;margin-right:6px}#chart{min-height:260px;overflow:hidden}svg{width:100%;height:auto;display:block}.markets{display:grid;gap:16px}.market{padding:2px 0 14px;border-bottom:1px solid var(--edge)}.market:last-child{border-bottom:none}.market strong{display:block;font-size:15px}.market .price{font-size:24px;letter-spacing:-.5px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:15px}.tableWrap{overflow-x:auto;max-height:390px;overflow-y:auto}table{width:100%;border-collapse:collapse;white-space:nowrap}th,td{text-align:left;padding:11px 9px;border-bottom:1px solid #293247;font-size:12px}th{color:#b5c2d4;font-weight:600;background:#172033;position:sticky;top:0}td{color:#e5eaf2}td.reason{white-space:normal;min-width:220px;max-width:420px}.pill{border:1px solid #546888;border-radius:7px;padding:2px 6px;font-size:11px}.foot{color:var(--muted);line-height:1.7;margin-top:24px;font-size:12px}.foot a{color:var(--cyan)}.button{color:#d1e3fa;background:#253852;border-radius:9px;border:1px solid #39547b;padding:9px 13px;text-decoration:none;font-size:12px}.headrow{display:flex;align-items:center;justify-content:space-between;gap:10px}.headrow h2{margin:25px 0 10px}
-@media(max-width:1040px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.split,.grid2{grid-template-columns:1fr}}@media(max-width:570px){.shell{padding:18px 13px 40px}.cards{gap:9px}.card{padding:13px;min-height:155px}.card .amount{font-size:22px}.card header strong{font-size:12px}.hero h2{font-size:23px}.nav{align-items:flex-start}.status{max-width:145px}}
+:root{color-scheme:dark;--bg:#101315;--surface:#15191c;--raised:#1b2024;--line:#2b3135;--text:#d8dcde;--muted:#899297;--accent:#d4b477;--green:#85b9a0;--red:#d78e85;--mono:ui-monospace,"Cascadia Code","SFMono-Regular",Consolas,monospace}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:16px}body{margin:0;background:var(--bg);color:var(--text);font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-variant-numeric:tabular-nums}.shell{max-width:1680px;min-height:100vh;margin:auto;border-inline:1px solid var(--line)}a{color:inherit}button,input,select{font:inherit}button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.topbar{min-height:48px;display:flex;align-items:center;gap:20px;padding:0 20px;border-bottom:1px solid var(--line)}h1{font-size:15px;letter-spacing:-.2px;margin:0;font-weight:600}.version,.clock{font:11px var(--mono);color:var(--muted)}.version{margin-left:8px}.topnav{display:flex;gap:20px;margin-left:20px}.topnav a{font-size:12px;color:var(--muted);text-decoration:none}.topnav a:hover{color:var(--text)}.clock{margin-left:auto;white-space:nowrap}.mode{color:var(--accent);font:10px var(--mono);letter-spacing:.06em;white-space:nowrap}.notice{display:flex;gap:14px;align-items:baseline;padding:7px 20px;background:#211e17;border-bottom:1px solid #403829;color:#c8b48c;font-size:11px}.notice strong{font:11px var(--mono);white-space:nowrap}.notice span{color:#b3a587}
+.filters{display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin:0;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--surface)}.filters label{display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:10px}.filters select,.filters input{background:var(--bg);border:1px solid #353c41;border-radius:2px;color:var(--text);min-height:30px;padding:4px 8px;font:11px var(--mono)}.filters select{min-width:125px}.filters input{max-width:184px}.filters button,.button{display:inline-flex;justify-content:center;align-items:center;background:transparent;border:1px solid #42494e;border-radius:2px;color:var(--text);min-height:30px;padding:5px 12px;cursor:pointer;text-decoration:none;font-size:11px}.filters button[type=submit]{background:#333026;color:#e1cc9f;border-color:#5d5039}.filters button:hover,.button:hover{background:var(--raised)}.button{min-height:25px;padding:3px 9px;color:var(--muted)}
+.markets{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));border-bottom:1px solid var(--line)}.market{min-width:0;padding:14px 20px;border-right:1px solid var(--line)}.market:last-child{border-right:0}.market-top,.market-bottom{display:flex;justify-content:space-between;gap:12px;align-items:center}.market-top strong{font-size:12px;font-weight:600}.market-top .market-state{font:10px var(--mono);color:var(--muted)}.market-main{display:flex;justify-content:space-between;align-items:center;gap:20px;margin:5px 0}.market .price{font:22px var(--mono);letter-spacing:-.7px}.spark{width:128px;flex:none}.spark svg{display:block;width:100%;height:32px}.market-bottom{color:var(--muted);font:10px var(--mono)}
+.healthbar{display:flex;flex-wrap:wrap;gap:8px 24px;padding:9px 20px;border-bottom:1px solid var(--line);font:10px var(--mono);color:var(--muted)}.healthbar .value{color:var(--text);margin-left:6px}.healthbar .green{color:var(--green)}.healthbar .red{color:var(--red)}.budgetbar{padding:6px 20px;border-bottom:1px solid var(--line);color:var(--muted);font:10px/1.5 var(--mono)}
+.section{min-width:0}.section-head{display:flex;justify-content:space-between;align-items:center;gap:15px;min-height:43px;padding:9px 20px;background:var(--surface);border-bottom:1px solid var(--line)}h2{font-size:12px;font-weight:600;margin:0}.section-head small{font:10px var(--mono);color:var(--muted);margin-left:10px}.tableWrap{overflow:auto;max-height:360px}.performance-wrap{max-height:none}table{width:100%;border-collapse:collapse;white-space:nowrap}th,td{padding:7px 14px;border-bottom:1px solid #242a2e;text-align:left;font-size:11px}th{position:sticky;top:0;z-index:1;color:var(--muted);background:var(--surface);font-weight:400;font-size:10px}td{font-family:var(--mono)}th:first-child,td:first-child{padding-left:20px}tbody tr:hover{background:#1c2125}#performance th:not(:first-child),#performance td:not(:first-child){text-align:right}#performance td:first-child,#positions td:first-child{font-family:inherit;font-weight:500}#positions th:nth-child(n+2):not(:last-child),#positions td:nth-child(n+2):not(:last-child){text-align:right}#trades td:nth-child(n+5),#trades th:nth-child(n+5){text-align:right}.period{padding:8px 20px;font:10px var(--mono);color:var(--muted);border-bottom:1px solid var(--line);margin:0}.sub{color:var(--muted);font-size:11px}.empty{padding:18px 20px;color:var(--muted);font-size:11px}.green{color:var(--green)}.red{color:var(--red)}.muted{color:var(--muted)}.pill{font-size:10px;color:var(--accent)}.reason{white-space:normal;min-width:180px;max-width:400px;color:var(--muted);font-family:inherit}
+.midgrid{display:grid;grid-template-columns:1.25fr 1fr;border-bottom:1px solid var(--line)}.midgrid>.section:first-child{border-right:1px solid var(--line)}.legend{display:flex;flex-wrap:wrap;gap:12px;padding:10px 20px;font-size:10px;color:var(--muted)}.dot{display:inline-block;width:12px;height:2px;vertical-align:middle;margin-right:5px}#chart{padding:0 12px 10px;min-height:220px}#chart svg{display:block;width:100%;height:auto;max-height:270px}.activitygrid{display:grid;grid-template-columns:1fr 1.3fr;border-bottom:1px solid var(--line)}.activitygrid>.section:first-child{border-right:1px solid var(--line)}.activitygrid .tableWrap{max-height:280px}.status-text{color:var(--muted);font-size:10px}.logline{display:flex;gap:15px;padding:5px 20px;border-bottom:1px solid #20262a;font:10px var(--mono)}.logline time{color:var(--muted);white-space:nowrap}.logline .level{color:var(--accent);min-width:38px}.logline .message{color:var(--muted);overflow-wrap:anywhere}footer{display:flex;gap:20px;flex-wrap:wrap;align-items:baseline;padding:12px 20px;color:var(--muted);font-size:10px}footer details{margin-left:auto;max-width:760px}summary{cursor:pointer}footer p{line-height:1.8}.scope{color:var(--muted);font-size:10px;padding:7px 20px;border-bottom:1px solid var(--line)}
+@media(max-width:1100px){.midgrid{grid-template-columns:1fr}.midgrid>.section:first-child{border-right:0;border-bottom:1px solid var(--line)}.activitygrid{grid-template-columns:1fr}.activitygrid>.section:first-child{border-right:0;border-bottom:1px solid var(--line)}}
+@media(max-width:640px){.topbar{padding:10px 12px;gap:10px;flex-wrap:wrap}.topnav{order:3;width:100%;margin-left:0;gap:24px}.topnav a{font-size:11px}.version{display:none}.clock{font-size:10px}.notice,.filters{padding-inline:12px}.notice{align-items:start}.notice strong{display:none}.filters label{flex:1;min-width:125px}.filters select,.filters input{width:100%;max-width:none}.section-head{padding-inline:12px}.market{padding:12px}.markets{grid-template-columns:1fr 1fr}.market .price{font-size:17px}.spark{display:none}.market-bottom{flex-wrap:wrap;gap:2px;font-size:9px}.healthbar{padding-inline:12px;gap:6px 14px}.budgetbar,.period,.scope{padding-inline:12px}th:first-child,td:first-child{padding-left:12px}.section-head small{display:none}.logline{padding-inline:12px;gap:8px}footer{padding-inline:12px}footer details{margin-left:0}.mode{font-size:9px}}
+
+.topbar{position:sticky;top:0;z-index:20}html{scroll-padding-top:72px}
+/* Functional work areas: market tape, operating strip, analysis, execution log. */
+body{background:#090c0e}.shell{background:#101416;border-inline-color:#252d32}
+.topbar{background:#191f23;border-bottom-color:#414b51;min-height:50px}
+.filters{background:#101416;border-bottom:1px solid #303a40;padding-block:13px}
+.markets{margin:16px 16px 0;border:1px solid #3c484f;background:#192126;box-shadow:none}
+.market{padding:14px 18px 12px;border-right-color:#3c484f}.market .price{font-size:24px;color:#edf0ee}.market-top{border-bottom:1px solid #303b41;padding-bottom:7px}.market-top strong{letter-spacing:.04em;font-size:11px}.market-main{margin:8px 0 7px}
+.operations-zone{margin:12px 16px 18px;border:1px solid #2f393f;background:#13191c;display:grid;grid-template-columns:132px minmax(0,1fr)}
+.zone-caption{grid-row:1/3;display:flex;align-items:center;padding:12px 16px;border-right:1px solid #2f393f;font-size:11px;color:#929e9f}
+.healthbar{padding:9px 14px;border-bottom:1px solid #283239;gap:6px 20px}.budgetbar{padding:6px 14px;border-bottom:0;color:#8d999f}
+#overview{margin:0 16px 18px;border:1px solid #4c5148;border-top:2px solid #b8a06e;background:#151b1e}
+#overview .section-head{background:#242a2b;border-bottom-color:#444b49;min-height:45px}#overview .section-head h2{font-size:13px;color:#e6decc}#overview th{background:#1c2428;color:#a0aaae}#overview .period{background:#151b1e;color:#8f9a9f}
+.section-head{background:#1c252a;border-bottom:1px solid #3a464d;min-height:42px}.section-head h2{color:#cbd3d7}
+.midgrid,.activitygrid{margin:0 16px 18px;gap:16px;border-bottom:0;background:transparent}
+.midgrid>.section,.activitygrid>.section{border:1px solid #354148;background:#12191d}
+.midgrid>.section:first-child,.activitygrid>.section:first-child{border-right:1px solid #354148}
+.midgrid>.section:first-child .section-head{background:#1a252b}.midgrid>#positions .section-head{background:#21282b}
+#chart{padding:6px 12px 12px;background:#10181c;min-height:235px}.legend{background:#10181c;padding-bottom:5px}
+.activitygrid>.section .section-head{background:#20282c}.activitygrid .tableWrap{max-height:300px}.log-zone{margin:0 16px 12px;border:1px solid #2d373d;background:#101619}.log-zone .section-head{background:#171e22}.logline{padding-block:6px}
+footer{margin-top:2px;padding:10px 18px 16px;border-top:1px solid #29333a}
+@media(max-width:1100px){.midgrid,.activitygrid{gap:18px}.midgrid>.section:first-child,.activitygrid>.section:first-child{border-right:1px solid #354148;border-bottom:1px solid #354148}}
+@media(max-width:640px){.markets{margin:12px 10px 0}.market{padding:10px}.market .price{font-size:18px}.operations-zone{margin:10px 10px 14px;grid-template-columns:1fr}.zone-caption{grid-row:auto;padding:7px 10px;border-right:0;border-bottom:1px solid #283239}.healthbar{padding:8px 10px}.budgetbar{padding:6px 10px}#overview{margin:0 10px 14px}.midgrid,.activitygrid{margin:0 10px 14px;gap:14px}.log-zone{margin:0 10px 12px}.section-head{padding-inline:12px}}
+
 </style></head>
-<body><div class="shell">
- <nav class="nav"><div class="brand"><div class="mark">↗</div><div><h1>LLM Trading Arena</h1><small>LIVE PAPER TRADING LAB · v0.3.1</small></div></div><div class="status" id="updated">Lade Daten …</div></nav>
- <section class="hero"><div><h2>Sieben Strategien. Zwei Märkte.</h2><div class="sub">Virtuelle Ausführungen · unabhängige Entscheidungssysteme · vollständig protokolliert</div></div><span class="tag" id="mode">Daten laden …</span></section>
- <div class="warning" id="warning">Keine echten Orders. Dieses Forschungsprojekt verwendet ausschließlich virtuelle Depots.</div>
- <section class="cards" id="cards"></section>
- <div class="sub" style="margin:12px 0 16px">Vergleich: Trendfolge (1h/4h) · Breakout (15m + 48h-Hoch) · Mean-Reversion (15m) · Ensemble (Marktregime) · GPT · Claude · Buy &amp; Hold. Handelssignale auf abgeschlossenen Kerzen, Kursüberwachung ca. alle 5 Sekunden. Standard-Takergebühr 0,25 % je Seite.</div>
- <section class="split"><div class="panel"><h3>Depotentwicklung · virtuell in EUR</h3><div class="legend" id="legend"></div><div id="chart"><span class="sub">Noch keine Daten.</span></div></div><div class="panel"><h3>Bitvavo EUR-Spotmärkte</h3><div class="markets" id="markets"></div><div class="sub" style="margin-top:12px">Preisbewertung: Midpoint · Ausführung: Bid/Ask + Slippage</div></div></section>
- <section class="grid2"><div class="panel"><div class="headrow"><h2>Letzte virtuelle Trades</h2><a class="button" href="/api/trades.csv" download="arena-trades.csv">CSV exportieren</a></div><div class="tableWrap" id="trades"></div></div><div class="panel"><h2>LLM- und Strategieentscheidungen</h2><div class="tableWrap" id="decisions"></div></div></section>
- <section class="panel" style="margin-top:15px"><h3>Betriebsprotokoll</h3><div id="logs" class="sub">Keine Einträge.</div></section>
- <div class="foot">Forschungssoftware, keine Anlageberatung. 15m/1h/4h-Kerzen für Handelssignale, 5-Sekunden-Kursüberwachung; LLM-Intervall standardmäßig 30 Minuten und bei Bewegungssignal. Nur abgeschlossene Kerzen. Positionslimit pro Asset 45 %, gesamte Marktexposition maximal 90 %, keine Shorts, kein Hebel. GPT/Claude werden nur mit konfiguriertem eigenen API-Schlüssel ausgeführt. Buy-and-Hold dient als passive Benchmark; andere Strategien stoppen nach 10 % Depot-Drawdown und liquidieren virtuell. Die simulierte Ausführung beweist keine reale Handelbarkeit. Dashboard nur lokal auf 127.0.0.1 erreichbar.</div>
-</div>
+<body><main class="shell">
+<header class="topbar"><h1>LLM Trading Arena <span class="version">v0.3.1</span></h1><nav class="topnav" aria-label="Bereiche"><a href="#overview">Übersicht</a><a href="#positions">Bestände</a><a href="#activity">Aktivität</a></nav><span class="clock" id="updated">Verbinde …</span><span class="mode" id="mode">PAPER</span></header>
+<div class="notice"><strong>PAPER TRADING</strong><span id="warning">Alle Ausführungen sind virtuell.</span></div>
+<form id="filters" class="filters">
+<label for="filter-agent">Depot<select id="filter-agent" aria-label="Depot"><option value="">Alle Depots</option><option value="gpt">GPT</option><option value="claude">Claude</option><option value="trend">Trendfolge</option><option value="breakout">Breakout</option><option value="meanrev">Mean Reversion</option><option value="ensemble">Ensemble</option><option value="buyhold">Buy &amp; Hold</option></select></label>
+<label for="filter-symbol">Markt<select id="filter-symbol" aria-label="Markt"><option value="">Beide Märkte</option><option value="BTCEUR">BTC/EUR</option><option value="ETHEUR">ETH/EUR</option></select></label>
+<label for="filter-start">Von · lokale Zeit<input type="datetime-local" id="filter-start"></label><label for="filter-end">Bis · lokale Zeit<input type="datetime-local" id="filter-end"></label>
+<button type="submit">Anwenden</button><button type="reset">Zurücksetzen</button>
+</form>
+<section class="markets" id="markets" aria-label="Marktpreise"></section>
+<section class="operations-zone" aria-label="Betrieb und API-Kosten"><div class="zone-caption">Betrieb &amp; API-Kosten</div><div class="healthbar" id="health">Status wird abgefragt …</div><div class="budgetbar" id="budget-status">API-Kosten werden geprüft …</div></section>
+<section class="section" id="overview"><div class="section-head"><h2>Strategievergleich <small>gemeinsamer Beobachtungszeitraum</small></h2><a class="button" id="export-json" href="/api/export.json" download="performance.json">JSON exportieren</a></div><div id="performance" class="tableWrap performance-wrap"></div></section>
+<div class="midgrid"><section class="section"><div class="section-head"><h2>Depotentwicklung</h2><span class="sub">EUR · Verlaufsauszug</span></div><div class="legend" id="legend"></div><div id="chart"><p class="empty">Noch keine Daten.</p></div></section><section class="section" id="positions"><div class="section-head"><h2>Bestände</h2><span class="sub">aktueller Stand</span></div><div class="tableWrap" id="cards"></div><div class="scope">Marktfilter gilt für Kurse und Aktivitäten. Depotwerte umfassen beide Märkte.</div></section></div>
+<div class="activitygrid" id="activity"><section class="section"><div class="section-head"><h2>Virtuelle Ausführungen</h2><a class="button" id="export-csv" href="/api/trades.csv" download="arena-trades.csv">CSV exportieren</a></div><div class="tableWrap" id="trades"></div></section><section class="section"><div class="section-head"><h2>Entscheidungen</h2><span class="sub">letzte Signale</span></div><div class="tableWrap" id="decisions"></div></section></div>
+<section class="section log-zone"><div class="section-head"><h2>Betriebsprotokoll</h2><span class="sub">global · unabhängig vom Filter</span></div><div id="logs"><p class="empty">Keine Einträge.</p></div></section>
+<footer><span>Forschungsbetrieb · keine echten Orders</span><span>Speicherung UTC · Anzeige lokale Zeit</span><details><summary>Versuchsbedingungen</summary><p>BTC/EUR und ETH/EUR. Signale aus abgeschlossenen Kerzen. Separate virtuelle Depots für GPT, Claude, Trendfolge, Breakout, Mean Reversion, Ensemble und Buy &amp; Hold. Positionslimit 45 % je Asset, 90 % gesamt; keine Shorts, kein Hebel. Bestehendes 10%-Drawdown-Limit für aktive Strategien. Ausführung auf Bid/Ask mit konfigurierten Gebühren und Slippage. API-Kosten sind lokale Schätzungen, keine Anbieterabrechnungen. Das Diagramm zeigt einen begrenzten Verlaufsauszug; Kennzahlen verwenden den gesamten gewählten Zeitraum. Dashboard ausschließlich lokal; externer Zugriff per SSH-Tunnel.</p></details></footer>
+</main>
+
 <script>
-const COLORS={gpt:'#64cedd',claude:'#bb9cfb',trend:'#f3bf62',breakout:'#f49f7d',meanrev:'#e6a3d4',ensemble:'#88aeff',buyhold:'#67dba8'};
+
+const COLORS={gpt:'#799db4',claude:'#aaa3b3',trend:'#95b6a5',breakout:'#bba084',meanrev:'#b19299',ensemble:'#a6adb2',buyhold:'#d4b477'};
 const NAMES={gpt:'GPT',claude:'Claude',trend:'Trendfolge',breakout:'Breakout',meanrev:'Mean Reversion',ensemble:'Ensemble',buyhold:'Buy & Hold'};
 const money=n=>new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR',maximumFractionDigits:2}).format(n);
 const num=(n,d=2)=>Number(n).toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d});
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function renderGraph(data, active){
  const lines=active.map(a=>({name:a,pts:data.filter(v=>v.agent===a).map(v=>({ts:new Date(v.ts).getTime(),y:v.value})).filter(v=>Number.isFinite(v.ts))})).filter(v=>v.pts.length>0);
- if(!lines.length){document.querySelector('#chart').innerHTML='<span class="sub">Noch keine Depoteinträge – Live-Prozess starten oder Demo verwenden.</span>';return;}
+ if(!lines.length){document.querySelector('#chart').innerHTML='<span class="sub">Keine gespeicherten Verlaufspunkte im gewählten Zeitraum.</span>';return;}
  let all=lines.flatMap(l=>l.pts), xmin=Math.min(...all.map(p=>p.ts)),xmax=Math.max(...all.map(p=>p.ts));if(xmin===xmax)xmax+=1;
  let ymin=Math.min(10000,...all.map(p=>p.y)),ymax=Math.max(10000,...all.map(p=>p.y));let pad=(ymax-ymin)*.16||400;ymin-=pad;ymax+=pad;
  const W=840,H=300,L=65,R=14,T=14,B=32,X=x=>L+(x-xmin)/(xmax-xmin)*(W-L-R),Y=y=>T+(ymax-y)/(ymax-ymin)*(H-T-B);
  let svg=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Depotentwicklung">`;
- for(let k=0;k<5;k++){let y=T+k*(H-T-B)/4,v=ymax-k*(ymax-ymin)/4;svg+=`<path d="M${L},${y}H${W-R}" stroke="#2c3950" stroke-width="1"/><text x="${L-10}" y="${y+4}" fill="#9caac0" text-anchor="end" font-size="11">${Math.round(v).toLocaleString('de-DE')}</text>`;}
- svg+=`<path d="M${X(xmin)},${Y(10000)}H${X(xmax)}" stroke="#9caac0" stroke-dasharray="3 6" opacity=".5"/>`;
- for(let line of lines){let pts=line.pts;if(pts.length>700)pts=pts.filter((v,i)=>i%Math.ceil(line.pts.length/700)===0||i===line.pts.length-1);svg+=`<polyline fill="none" stroke="${COLORS[line.name]}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" points="${pts.map(p=>`${X(p.ts).toFixed(2)},${Y(p.y).toFixed(2)}`).join(' ')}"/>`;}
+ for(let k=0;k<5;k++){let y=T+k*(H-T-B)/4,v=ymax-k*(ymax-ymin)/4;svg+=`<path d="M${L},${y}H${W-R}" stroke="#293035" stroke-width="1"/><text x="${L-10}" y="${y+4}" fill="#899297" text-anchor="end" font-size="11">${Math.round(v).toLocaleString('de-DE')}</text>`;}
+ svg+=`<path d="M${X(xmin)},${Y(10000)}H${X(xmax)}" stroke="#899297" stroke-dasharray="3 6" opacity=".5"/>`;
+ for(let line of lines){let pts=line.pts;if(pts.length>700)pts=pts.filter((v,i)=>i%Math.ceil(line.pts.length/700)===0||i===line.pts.length-1);svg+=`<polyline fill="none" stroke="${COLORS[line.name]}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" points="${pts.map(p=>`${X(p.ts).toFixed(2)},${Y(p.y).toFixed(2)}`).join(' ')}"/>`;}
  let datefmt=d=>new Date(d).toLocaleDateString('de-DE',{day:'2-digit',month:'short'});
- svg+=`<text x="${L}" y="${H-6}" fill="#9caac0" font-size="11">${datefmt(xmin)}</text><text x="${W-R}" y="${H-6}" fill="#9caac0" text-anchor="end" font-size="11">${datefmt(xmax)}</text></svg>`;
+ svg+=`<text x="${L}" y="${H-6}" fill="#899297" font-size="11">${datefmt(xmin)}</text><text x="${W-R}" y="${H-6}" fill="#899297" text-anchor="end" font-size="11">${datefmt(xmax)}</text></svg>`;
  document.querySelector('#chart').innerHTML=svg;
 }
 function sparkline(ticks){
@@ -46,26 +84,72 @@ function sparkline(ticks){
  if(vals.length<2)return '';
  const lo=Math.min(...vals),hi=Math.max(...vals),span=hi-lo||1;
  const pts=vals.map((v,i)=>`${(i/(vals.length-1)*300).toFixed(1)},${(50-(v-lo)/span*46).toFixed(1)}`).join(' ');
- return `<svg style="margin-top:8px" viewBox="0 0 300 55" aria-label="Letzte Live-Preise"><polyline fill="none" stroke="#64cedd" stroke-width="1.7" points="${pts}"/></svg>`;
+ return `<svg style="margin-top:8px" viewBox="0 0 300 55" aria-label="Kursverlauf"><polyline fill="none" stroke="#899f9a" stroke-width="1.7" points="${pts}"/></svg>`;
 }
-function renderTable(rows,headers,fn){if(!rows.length)return '<div class="sub">Noch keine Einträge.</div>';return '<table><thead><tr>'+headers.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>'+rows.map(x=>'<tr>'+fn(x).map(v=>`<td>${v}</td>`).join('')+'</tr>').join('')+'</tbody></table>';}
+function renderTable(rows,headers,fn){if(!rows.length)return '<div class="empty">Keine Einträge im gewählten Zeitraum.</div>';return '<table><thead><tr>'+headers.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>'+rows.map(x=>'<tr>'+fn(x).map(v=>`<td>${v}</td>`).join('')+'</tr>').join('')+'</tbody></table>';}
 function dt(iso){return new Date(iso).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
+function reportQuery(){
+ const q=new URLSearchParams();
+ for(const name of ['agent','symbol','start','end']){
+  const value=document.querySelector('#filter-'+name).value;
+  if(value)q.set(name,(name==='start'||name==='end')?new Date(value).toISOString():value);
+ }
+ return q;
+}
+function rowWithinPeriod(row,q){
+ const at=Date.parse(row.ts);return (!q.get('start')||at>=Date.parse(q.get('start')))&&(!q.get('end')||at<=Date.parse(q.get('end')));
+}
 async function refresh(){
  try{
  const response=await fetch('/api/state',{cache:'no-store'});if(!response.ok)throw Error('HTTP '+response.status);const d=await response.json();
- document.querySelector('#mode').textContent=d.mode;document.querySelector('#mode').className='tag'+(d.demo?' demo':'');
+ const q=reportQuery();
+ const hr=await fetch('/api/history?'+q,{cache:'no-store'});if(!hr.ok)throw Error('Ungültiger Filter');
+ const history=await hr.json();d.trades=history.trades;d.decisions=history.decisions;
+ document.querySelector('#export-csv').href='/api/trades.csv?'+q;
+ document.querySelector('#export-json').href='/api/export.json?'+q;
+ if(q.get('agent'))d.portfolios=d.portfolios.filter(p=>p.agent===q.get('agent'));
+ d.equity=d.equity.filter(row=>rowWithinPeriod(row,q));
+ if(q.get('symbol'))d.markets=Object.fromEntries(Object.entries(d.markets).filter(([key])=>key===q.get('symbol')));
+ document.querySelector('#mode').textContent=d.demo?'SYNTHETISCHE DEMO':'LIVE-DATEN · PAPER';
  document.querySelector('#updated').textContent='Abfrage: '+new Date().toLocaleTimeString('de-DE');
- document.querySelector('#warning').textContent=d.demo?'DEMO: Alle Kurse sind ausdrücklich SYNTHETISCH. GPT und Claude handeln NICHT; nur die Referenzsysteme werden gezeigt. Keine Performance-Aussage möglich.':'LIVE-SANDBOX: Echte öffentliche Bitvavo-Kurse, aber ausschließlich virtuelle Orders. Keine reale Ausführungsbestätigung und keine Renditegarantie.';
- document.querySelector('#cards').innerHTML=d.portfolios.map(p=>{
- let disabled=!p.available;let stopped=p.halted;let c=p.return_pct>=0?'green':'red';
- return `<article class="card ${disabled?'paused':''}"><header><strong>${NAMES[p.agent]}</strong><span class="icon">${stopped?'RISIKO-STOPP':disabled?'KEIN API-KEY':p.agent==='buyhold'?'BENCHMARK':(p.agent==='gpt'||p.agent==='claude')?'KEY GESETZT':'SIMULIERT'}</span></header><div class="amount">${money(p.equity)}</div><div class="pct ${c}">${p.return_pct>=0?'+':''}${num(p.return_pct)} %</div><div class="sub" style="margin-top:9px">${disabled?'Kein LLM-API-Schlüssel – keine LLM-Signale':`Cash ${money(p.cash)} · BTC ${num(p.btc,5)} · ETH ${num(p.eth,4)}`}</div></article>`;}).join('');
+ document.querySelector('#warning').textContent=d.demo?'Synthetische Testdaten. GPT und Claude sind inaktiv. Keine Aussage zur Handelsperformance.':'Öffentliche Bitvavo-Kurse. Alle Ausführungen sind virtuell.';
+ document.querySelector('#cards').innerHTML=renderTable(d.portfolios,['Depot','Wert EUR','Cash EUR','BTC','ETH','Status'],p=>[
+ esc(NAMES[p.agent]),num(p.equity),num(p.cash),num(p.btc,5),num(p.eth,4),
+ `<span class="status-text">${p.halted?'Risikostopp':!p.available?(d.demo?'Demo inaktiv':'API-Key fehlt'):p.agent==='buyhold'?'Benchmark':(p.agent==='gpt'||p.agent==='claude')?'Konfiguriert':'Regelwerk'}</span>`]);
  document.querySelector('#legend').innerHTML=d.portfolios.filter(p=>p.available).map(p=>`<span><span class="dot" style="background:${COLORS[p.agent]}"></span>${NAMES[p.agent]}</span>`).join('');
  renderGraph(d.equity,d.portfolios.filter(p=>p.available).map(p=>p.agent));
- document.querySelector('#markets').innerHTML=Object.values(d.markets).map(m=>{const age=(Date.now()-Date.parse(m.ts))/1000;const fresh=Number.isFinite(age)&&age<20;return `<div class="market"><strong>${esc(m.symbol)} · <span class="${fresh?'green':'red'}">${fresh?'LIVE':'KURS VERALTET'}</span></strong><div class="price">${money((m.bid+m.ask)/2)}</div><div class="sub">Bid ${money(m.bid)} · Ask ${money(m.ask)}</div><div class="sub">${m.bar_ts ? 'Letzte abgeschlossene 1m-Kerze '+dt(new Date(m.bar_ts*1000).toISOString()) : '1m-Kerzen werden geladen'} · ${esc(m.source)}</div>${sparkline(d.price_history?.[m.symbol]||[])}</div>`}).join('')||'<span class="sub">Noch keine Live-Kurse geladen.</span>';
+ document.querySelector('#markets').innerHTML=Object.values(d.markets).map(m=>{
+  const age=(Date.now()-Date.parse(m.ts))/1000,fresh=Number.isFinite(age)&&age>=0&&age<=20;
+  const mid=(m.bid+m.ask)/2,spread=mid>0?10000*(m.ask-m.bid)/mid:0;
+  return `<div class="market"><div class="market-top"><strong>${esc(m.symbol==='BTCEUR'?'BTC / EUR':'ETH / EUR')}</strong><span class="market-state ${!d.demo&&!fresh?'red':''}">${d.demo?'DEMO':fresh?'LIVE':'VERALTET'}</span></div><div class="market-main"><span class="price">${num(mid)}</span><div class="spark">${sparkline(d.price_history?.[m.symbol]||[])}</div></div><div class="market-bottom"><span>Bid ${num(m.bid)} / Ask ${num(m.ask)}</span><span>${num(spread,1)} bp · ${esc(dt(m.ts))}</span></div></div>`;
+ }).join('')||'<div class="empty">Noch kein gültiger Marktstand.</div>';
  document.querySelector('#trades').innerHTML=renderTable(d.trades,['Zeit','Agent','Markt','Typ','Volumen','Gebühr'],r=>[esc(dt(r.ts)),esc(NAMES[r.agent]||r.agent),esc(r.symbol),`<span class="pill">${esc(r.side)}</span>`,money(r.notional),money(r.fee)]);
  document.querySelector('#decisions').innerHTML=renderTable(d.decisions,['Zeit','Agent','Markt','Signal','Grund'],r=>[esc(dt(r.ts)),esc(NAMES[r.agent]||r.agent),esc(r.symbol),`<span class="pill">${esc(r.action)}</span>`,`<span class="reason">${esc(r.reason)}</span>`]);
- document.querySelector('#logs').innerHTML=d.logs.length?d.logs.slice(0,8).map(l=>`<div style="padding:5px 0;border-bottom:1px solid #273348">${esc(dt(l.ts))} · ${esc(l.level)} · ${esc(l.message)}</div>`).join(''):'Keine Einträge.';
+ document.querySelector('#logs').innerHTML=d.logs.length?d.logs.slice(0,8).map(l=>`<div class="logline"><time>${esc(dt(l.ts))}</time><span class="level">${esc(l.level)}</span><span class="message">${esc(l.message)}</span></div>`).join(''):'<p class="empty">Keine Einträge.</p>';
  }catch(e){document.querySelector('#updated').textContent='Datenfehler';document.querySelector('#logs').textContent=String(e);}
 }
-refresh();setInterval(refresh,5000);
+async function refreshResearch(){
+ let gotHealth=false;
+ try{
+  const h=await (await fetch('/api/health',{cache:'no-store'})).json();
+  const labels={ok:'OK',degraded:'Eingeschränkt',error:'Fehler',disabled:'Aus',untested:'Ungeprüft',pending:'Wartet', 'read-only':'Beobachtung'};
+  const cells=[['Betrieb',h.status],['Feed',h.bitvavo?.status],['GPT',h.providers?.gpt?.status],['Claude',h.providers?.claude?.status]];
+  document.querySelector('#health').innerHTML=cells.map(([label,value])=>`<span>${esc(label)}<span class="value ${value==='ok'?'green':value==='error'?'red':''}">${esc(labels[value]||value||'unbekannt')}</span></span>`).join('')+`<span>Letzte Entscheidung<span class="value">${h.last_decision?esc(dt(h.last_decision)):'keine'}</span></span>`;
+  document.querySelector('#budget-status').textContent=`API heute / bekannte Schätzung ${money(h.llm_budget?.estimated_cost_eur||0)} / belegt oder reserviert ${money(h.llm_budget?.charged_or_reserved_eur||0)} / Kosten unbekannt: ${h.llm_budget?.unknown_cost_attempts??'–'} Versuche / Budget ${({not_configured:'nicht eingerichtet',enabled:'aktiv',blocked:'gesperrt',error:'Fehler'})[h.llm_budget?.status]||'unbekannt'}`;
+  gotHealth=true;
+  const r=await fetch('/api/performance?'+reportQuery(),{cache:'no-store'});if(!r.ok)throw Error('Ungültiger Filter');const p=await r.json();
+  document.querySelector('#performance').innerHTML=p.status==='ok'?`<p class="period">${esc(new Date(p.start).toLocaleString('de-DE'))} — ${esc(new Date(p.end).toLocaleString('de-DE'))} · ${p.observations} Beobachtungen${p.demo?' · DEMO':''}</p>`+renderTable(p.portfolios,['Strategie','Netto Handel','nach API¹','Drawdown','Gebühren','Trades','Realisiert²','vs. Buy & Hold'],r=>[
+  esc(NAMES[r.agent]||r.agent)+(p.demo&&['gpt','claude'].includes(r.agent)?' <span class="status-text">inaktiv</span>':''),
+  `<span class="${r.net_return_pct>=0?'green':'red'}">${r.net_return_pct>0?'+':''}${num(r.net_return_pct)} %</span>`,
+  r.return_after_estimated_api_cost_pct==null?'unbekannt':num(r.return_after_estimated_api_cost_pct)+' %',
+  num(r.max_drawdown_pct)+' %',money(r.fees_eur),esc(r.trade_count),
+  r.accounting?.realized_pnl_eur==null?'unbekannt':money(r.accounting.realized_pnl_eur),num(r.excess_buyhold_pct)+' pp'])+
+  '<p class="period">¹ Nach vollständigen lokalen Kostenschätzungen. ² FIFO einschließlich Gebühren. Depotwerte umfassen offene Positionen.</p>':'<p class="empty">Für den gewählten Zeitraum fehlt eine gemeinsame Depothistorie.</p>';
+
+ }catch(e){if(!gotHealth)document.querySelector('#health').textContent='Betriebsstatus nicht abrufbar';document.querySelector('#performance').textContent='Auswertung nicht verfügbar: Filter oder Daten prüfen.';}
+}
+document.querySelector('#filters').addEventListener('submit',event=>{event.preventDefault();refresh();refreshResearch();});
+document.querySelector('#filters').addEventListener('reset',()=>setTimeout(()=>{refresh();refreshResearch();},0));
+refresh();refreshResearch();setInterval(refresh,5000);setInterval(refreshResearch,15000);
+
 </script></body></html>

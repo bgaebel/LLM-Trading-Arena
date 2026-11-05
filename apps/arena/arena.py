@@ -64,6 +64,13 @@ def load_dotenv(path: str = '.env') -> None:
         os.environ.setdefault(key.strip(), value)
 
 
+class HTTPFailure(RuntimeError):
+    def __init__(self, status, retry_after=None):
+        super().__init__(f'HTTP {status}')
+        self.status = status
+        self.retry_after = retry_after
+
+
 def http_json(url: str, *, payload: dict | None = None, headers: dict | None = None) -> dict:
     raw = None if payload is None else json.dumps(payload).encode('utf-8')
     req = urllib.request.Request(url, data=raw, headers={
@@ -74,9 +81,24 @@ def http_json(url: str, *, payload: dict | None = None, headers: dict | None = N
     })
     try:
         with urllib.request.urlopen(req, timeout=35 if raw else 12) as resp:
-            return json.loads(resp.read(2_000_000).decode('utf-8'))
+            result=json.loads(resp.read(2_000_000).decode('utf-8'))
+            if raw:
+                from provenance import capture_usage, strict_response
+                capture_usage(result)
+                strict_response(result,url)
+            return result
     except urllib.error.HTTPError as exc:
-        raise RuntimeError(f'HTTP {exc.code}') from None
+        try:
+            delay = float(exc.headers.get('Retry-After', '0'))
+            delay = min(3600., max(0., delay)) if math.isfinite(delay) else 0.
+        except (ValueError, TypeError, AttributeError):
+            delay = 0.
+        try:
+            reset=float(exc.headers.get('bitvavo-ratelimit-resetat','0'))
+            if reset>100_000_000_000:reset/=1000
+            if math.isfinite(reset):delay=max(delay,min(3600.,max(0.,reset-time.time())))
+        except (ValueError,TypeError,AttributeError):pass
+        raise HTTPFailure(exc.code, delay or None) from None
 
 
 @dataclass(frozen=True)

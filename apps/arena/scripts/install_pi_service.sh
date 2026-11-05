@@ -23,7 +23,7 @@ if [ "$MODE" = install ]; then
   fi
   python3 -m unittest discover -s tests -v
   python3 scripts/preflight.py
-  python3 scripts/backup_db.py "$DATA/live_v03_bitvavo.sqlite3" "$DATA/pre-update/install-$(date -u +%Y%m%dT%H%M%S)-$$.sqlite3"
+  python3 scripts/backup_bundle.py "$DATA/live_v03_bitvavo.sqlite3" --destination "$DATA/pre-update/install-$(date -u +%Y%m%dT%H%M%S)-$$.zip"
 fi
 TMP_UNITS="$(mktemp -d)"
 trap 'rm -f "$TMP_UNITS/llm-trading-arena.service" "$TMP_UNITS/llm-trading-arena-backup.service" "$TMP_UNITS/llm-trading-arena-backup.timer"; rmdir "$TMP_UNITS"' EXIT

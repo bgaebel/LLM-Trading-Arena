@@ -165,6 +165,10 @@ def health_report(db_path, health=None, *, demo=False):
             con.execute('BEGIN')
             con.execute('SELECT 1 FROM portfolios LIMIT 1').fetchone()
             result['sqlite'] = {'status': 'ok'}
+            from budget import summary
+            try: result['llm_budget'] = summary(con)
+            except (OSError,ValueError,TypeError,KeyError,AttributeError,ArithmeticError) as exc:
+                result['llm_budget']={'status':'error','error':safe_error(exc)}
             result['last_decision'] = con.execute('SELECT MAX(ts) FROM decisions').fetchone()[0]
             markets = {}
             for row in con.execute('SELECT symbol,ts,source FROM market'):
@@ -203,6 +207,7 @@ def health_report(db_path, health=None, *, demo=False):
     if result['sqlite']['status'] != 'ok' or any(v['status'] in ('stalled', 'failed') for v in result['workers'].values()):
         result['status'] = 'error'
     elif health and (result['bitvavo']['status'] == 'degraded' or
+                    (bool(os.getenv('OPENAI_API_KEY') or os.getenv('ANTHROPIC_API_KEY')) and result.get('llm_budget',{}).get('status') in ('blocked','error')) or
                     any(v['status'] != 'ok' for v in result['workers'].values()) or
                     any(v['status'] in ('degraded', 'untested') for v in result['providers'].values())):
         result['status'] = 'degraded'

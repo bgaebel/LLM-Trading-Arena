@@ -66,3 +66,14 @@ Echte APIs, echte Depots, physischer Stromverlust und ARM64-Hardware wurden hier
 ## Verbleibende Risiken
 
 Lokale Backups sind kein Schutz vor Laufwerksausfall. Hart abgebrochene Backups können ignorierte temporäre Dateien hinterlassen. Historische Equity-/Trade-Daten wachsen ohne automatische Löschung. Ein fehlender Marktquote pausiert weiterhin beide Märkte, weil das bestehende Risikomodell beide Bewertungen benötigt. Modellverfügbarkeit und API-Kosten werden hier nicht verifiziert. Das Repository ist aktuell öffentlich statt wie in der Roadmap vorgesehen privat; keine automatische Sichtbarkeitsänderung.
+
+
+## Ergänzung: Forschungsbetrieb und Terminal (Vertrag 2)
+
+Anwendungscode des Forschungsausbaus: 102 lokale Offline-Tests unter Windows/Python 3.13, 101 bestanden und 1 POSIX-Skip. Zusätzlich JavaScript mit `node --check`, Python-Kompilierung und Bash-Syntax geprüft. Neue Testfelder: persistente EUR-Reservierungen, Fehler-/Timeoutkosten, Cache-Sondertarife, gemeinsame Anbietergrenze, sichere Paketwiederherstellung einschließlich Budget-/Audithistorie, lokale HTTP-Filter/Exporte, FIFO-Gebührenzuordnung, unbekannte Eröffnungskosten, 100%-Drawdown sowie 429-/Netzwerk-Recovery und strenge Modellantworten.
+
+Terminal mit synthetischen Daten im echten Browser geprüft: Depot-/Markt-/Zeitfilter, Rücksetzen, zugehörige Exportparameter; Layout im schmalen Fenster (375 CSS-Pixel Inhalt) und bei 1.440 CSS-Pixeln, jeweils ohne horizontalen Dokumentüberlauf. Breite Tabellen scrollen innerhalb ihres Bereichs. Keine echte Handelsperformance wird daraus abgeleitet.
+
+Betriebsvertrag und verbleibende Abnahme: [RESEARCH_CONTROLS.md](RESEARCH_CONTROLS.md). Frühere P0/P1-Nachweise oben sind historische Ergebnisse der damaligen Teilstände.
+
+CI des Anwendungscodes `bc59410`: [vier erfolgreiche Jobs unter Ubuntu/Windows mit Python 3.11/3.13](https://github.com/bgaebel/LLM-Trading-Arena/actions/runs/42015288728). Unter Linux alle 102 Tests bestanden, unter Windows 101 plus POSIX-Skip; JavaScript-Prüfung ebenfalls erfolgreich.

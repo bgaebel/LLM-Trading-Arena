@@ -19,7 +19,8 @@ APP = Path(__file__).resolve().parents[1]
 REPO = APP.parents[1]
 sys.path.insert(0, str(APP))
 from arena import load_dotenv
-from backup import backup_database, digest
+from backup import digest
+from bundle import backup_bundle as backup_database
 from operations import WriterLock, inspect_db, safe_error
 
 SERVICE = 'llm-trading-arena.service'
@@ -59,8 +60,8 @@ def prepare_candidate(commit, folder):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 with tar.extractfile(entry) as f: target.write_bytes(f.read())
     candidate = folder / 'apps/arena'
-    # This mechanism deliberately supports only the unchanged v0.3.1 schema family.
-    if (candidate / 'deploy/OPERATIONS_VERSION').read_text().strip() != '1':
+    # This mechanism deliberately supports only the unchanged v0.3.1 schema plus the version-2 audit/budget backup contract.
+    if (candidate / 'deploy/OPERATIONS_VERSION').read_text().strip() != '2':
         raise ValueError('Unsupported operations/schema compatibility version')
     command(sys.executable, '-m', 'unittest', 'discover', '-s', 'tests', '-v',
             cwd=candidate, env=clean_test_env())
@@ -102,7 +103,7 @@ def deploy(commit, data_dir, candidate, *, port):
             command('sudo', 'systemctl', 'stop', SERVICE)
             with WriterLock(db):
                 inspect_db(db, mode='live')
-                backup_database(db, data_dir / 'pre-update' / (uuid.uuid4().hex + '.sqlite3'))
+                backup_database(db, data_dir / 'pre-update' / (uuid.uuid4().hex + '.zip'))
                 command(sys.executable, 'scripts/check_db.py', str(db), cwd=candidate, env=clean_test_env())
                 command('git', 'checkout', '--detach', commit)
                 if digest(APP / '.env') != env_hash: raise RuntimeError('Configuration changed')
@@ -130,7 +131,7 @@ def main():
     if sys.platform != 'linux' or os.getuid() == 0: p.error('Run as the regular Pi user on Linux')
     if REPO != Path.home() / 'llm-trading-arena': p.error('Unexpected installation directory')
     if command('git', 'status', '--porcelain', capture=True).strip(): p.error('Working tree must be clean')
-    if (APP / 'deploy/OPERATIONS_VERSION').read_text().strip() != '1': p.error('Incompatible current release')
+    if (APP / 'deploy/OPERATIONS_VERSION').read_text().strip() != '2': p.error('Incompatible current release')
     # Authenticate sudo before stopping a service; no unattended prompts halfway through backup.
     command('sudo', '-v')
     command('git', 'fetch', '--tags', 'origin')

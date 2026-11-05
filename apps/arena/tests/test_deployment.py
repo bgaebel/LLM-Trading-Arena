@@ -60,7 +60,7 @@ class DeploymentTests(unittest.TestCase):
         before=inspect_db(self.path)
         with patch.object(deploy,'backup_database',side_effect=snapshot):self.exercise()
         self.assertEqual(inspect_db(self.path),before)
-        self.assertEqual(len(list((self.root/'pre-update').glob('*.sqlite3'))),1)
+        self.assertEqual(len(list((self.root/'pre-update').glob('*.zip'))),1)
         self.assertLess(self.events.index(('backup',)),self.events.index(('git','checkout','--detach','new-sha')))
         self.assertEqual(self.events[-1],('sudo','systemctl','start',deploy.TIMER))
 

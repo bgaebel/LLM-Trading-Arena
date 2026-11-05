@@ -82,7 +82,8 @@ def backup_database(source, destination, *, timeout=120, managed=False):
         metadata = {'format': 1, 'file': destination.name, 'sha256': digest(temporary),
                     'created_utc': datetime.now(timezone.utc).isoformat(),
                     'source_id': hashlib.sha256(str(source).encode()).hexdigest(),
-                    'managed': managed, 'inventory': inventory}
+                    'managed': managed, 'inventory': inventory,
+                    'audit_sidecars_present': next((source.parent/'llm-audit').glob(source.name+'*.json'),None) is not None}
         publish_snapshot(temporary, destination, metadata)
         return metadata
     finally:
@@ -135,6 +136,8 @@ def restore_backup(source, destination):
     with WriterLock(destination):
         require_empty_target(destination)
         original = json.loads(source.with_name(source.name + '.manifest.json').read_text(encoding='utf-8'))
+        if original.get('audit_sidecars_present'):
+            raise ValueError('This database requires a complete audit backup bundle')
         if original.get('format') != 1 or original.get('file') != source.name:
             raise ValueError('Unsupported or mismatched backup manifest')
         fd, temporary = tempfile.mkstemp(prefix='.arena-restore-', suffix='.tmp', dir=destination.parent)
