@@ -2,7 +2,24 @@
 
 **Nicht mit echten Daten ausgeführt:** Die bisherige Historie liegt laut Nutzer auf einem anderen PC. Entwicklung/Tests verwenden temporäre synthetische DBs.
 
-## Finaler Windows-Snapshot
+## Historie mit LLM-Audit und Budgetjournal
+
+Sobald `llm-audit/` vorhanden ist, vollständige Pakete verwenden, keine alleinige SQLite-Kopie. Nach Stop beider Prozesse auf Windows:
+
+```powershell
+python scripts/backup_bundle.py $sourceDb --destination "$migrationDir/arena-migration.zip"
+python scripts/backup_bundle.py "$migrationDir/arena-migration.zip" --verify
+```
+
+Dabei `$sourceDb` und `$migrationDir` wie im folgenden Legacy-Abschnitt auf den tatsächlichen privaten Pfad setzen. ZIP per SSH übertragen. Auf dem Pi einen noch nicht existierenden Datenordner als Ziel verwenden:
+
+```bash
+python3 scripts/backup_bundle.py "$HOME/arena-migration/arena-migration.zip" --restore-directory "$HOME/.local/share/llm-trading-arena"
+```
+
+Bestehender Zielordner wird abgelehnt; keine Dateien löschen oder überschreiben, um diese Prüfung zu umgehen. Nach Restore bleibt LLM-Nutzung bis zum nächsten UTC-Tag vorsichtshalber gesperrt, weil ein Backup spätere externe Ausgaben nicht kennen kann. Klassische Strategien und übernommene Historie bleiben verfügbar. [Vollständige Anleitung und Budgetregeln](RESEARCH_CONTROLS.md).
+
+## Finaler Windows-Snapshot – Legacy ohne Audit-Seitendaten
 
 1. Tatsächliche Quelle ermitteln: Standard `%LOCALAPPDATA%/LLMTradingArena/data/live_v03_bitvavo.sqlite3`, eventuell `LLM_TRADING_ARENA_DATA_DIR`. Bei fehlender DB keine neue erzeugen.
 2. Windows-Bot vollständig beenden, automatische Starts deaktivieren. Pi-Dienst ebenfalls stoppen. Neue Schreibsperre schützt nicht gegen alte Versionen oder einen zweiten Rechner.

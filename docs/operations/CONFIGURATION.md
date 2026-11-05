@@ -25,3 +25,7 @@ Dateien: `live_v03_bitvavo.sqlite3` und `demo_v03_bitvavo.sqlite3`. Kein automat
 Betriebswerte sind in versionierten Units festgelegt: Neustart 15 s, Stop-Limit 60 s, Worker-Stillstand 45/180/240 s (Quotes dynamisch wie oben), täglicher Backup-Timer 03:15 UTC plus bis 5 min Zufallsverzögerung, 14 automatische Backups, Betriebslogs in DB 30 Tage, eigener Journal-Namensraum 200 MB persistent / 50 MB flüchtig / maximal 14 Tage. Änderungen an diesen Units als überprüften Code-Release ausrollen.
 
 Konfigurationen enthalten Secrets und bleiben außerhalb Git. Vor Updates lokal sichern; der Updater verändert `.env` nicht und kontrolliert deren Hash. Bestehende Gebühren-/Strategieparameter beim Transfer exakt übernehmen.
+
+## Forschungsbetrieb / Betriebsvertrag 2
+
+Monetäre Reservierung, vier Modellpreisvariablen, unveränderte bestehende `.env`-Dateien und vollständige Audit-/Budget-Backups: [RESEARCH_CONTROLS.md](RESEARCH_CONTROLS.md). Die neue Beispielkonfiguration sperrt LLM-Anfragen zunächst mit `LLM_DAILY_BUDGET_EUR=0`. Vor Freischaltung eigene EUR-Modellpreise und Reservierung konfigurieren. Die Backup-Unit verwendet jetzt vollständige ZIP-Pakete und ein Zeitlimit von 1.800 Sekunden.

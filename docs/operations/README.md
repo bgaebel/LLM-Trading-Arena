@@ -1,5 +1,7 @@
 # Raspberry Pi 5 – Installation und Betrieb
 
+Für den Forschungsausbau gilt Betriebsvertrag **2** mit [vollständigen Audit-Backups und Budgetkontrolle](RESEARCH_CONTROLS.md). Die nachfolgenden allgemeinen Pi-Betriebsschritte bleiben gültig.
+
 Ziel: Raspberry Pi OS **64-bit**, Python **3.11+**, systemd, ausschließlich Paper Trading. Software unter Windows und Linux-CI geprüft; Pi-Hardware-Abnahme offen: [VALIDATION.md](VALIDATION.md). Keine bestehende Handelsdatenbank befindet sich im Repository.
 
 ## 1. Pi vorbereiten
@@ -110,9 +112,9 @@ systemctl status llm-trading-arena-backup.service
 journalctl --namespace=llm-trading-arena -u llm-trading-arena-backup.service -n 30
 ```
 
-Es bleiben die **14 neuesten erfolgreichen automatischen Sicherungen je Quellpfad**. Fehlgeschlagene Backups löschen nichts. Manuelle/Installations-/Pre-Update-Sicherungen werden nicht automatisch gelöscht. Die `.manifest.json` gehört zum Backup: SHA-256, Schema-Fingerprint, Inventar. Beides privat und außerhalb Git halten.
+Es bleiben die **14 neuesten erfolgreichen automatischen Sicherungen je Quellpfad**. Fehlgeschlagene Backups löschen nichts. Manuelle/Installations-/Pre-Update-Sicherungen werden nicht automatisch gelöscht. Neue automatische Backups sind ZIP-Pakete mit internem SHA-256-Manifest, SQLite-Inventar, Audit-Dateien und Budgetjournal. Pakete privat und außerhalb Git halten; alte manuelle SQLite-Sicherungen werden nicht automatisch gelöscht.
 
-Die SQLite-Backup-API berücksichtigt WAL konsistent. Die endgültige Datei erscheint nach Integritätsprüfung/fsync. Atomare Hardlinks benötigen ein geeignetes lokales Dateisystem, z. B. ext4/NTFS; FAT/exFAT und Netzwerkfreigaben sind nicht unterstützt. Separate verschlüsselte Kopien auf zweitem Medium und regelmäßige Wiederherstellungsproben einrichten. Lokale Backups schützen nicht vor Laufwerksausfall.
+Die SQLite-Backup-API berücksichtigt WAL konsistent. Die endgültige Datei erscheint nach Integritätsprüfung/fsync. Atomare Hardlinks benötigen ein geeignetes lokales Dateisystem, z. B. ext4/NTFS; FAT/exFAT und Netzwerkfreigaben sind nicht unterstützt. Separate verschlüsselte Kopien auf zweitem Medium und regelmäßige Wiederherstellungsproben einrichten. Restore eines vollständigen Pakets erfolgt in ein neues Datenverzeichnis gemäß [Forschungsbetrieb](RESEARCH_CONTROLS.md). Lokale Backups schützen nicht vor Laufwerksausfall.
 
 Eigener Journal-Namensraum: 200 MB/14 Tage. Nach erfolgreichem Tagesbackup werden SQLite-**Logs** älter als 30 Tage entfernt. Trades, Entscheidungen, LLM-Zähler und Equity bleiben erhalten. Kein automatisches VACUUM; Speicherplatz und Wachstum überwachen.
 
